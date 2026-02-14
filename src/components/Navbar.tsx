@@ -8,7 +8,7 @@ const Navbar = () => {
         <div className="flex items-center gap-2">
           <Package className="h-6 w-6 text-primary" />
           <span className="text-lg font-bold tracking-tight text-foreground">
-            Qik<span className="text-lime-500">Parcel</span>
+            Qik<span className="text-primary">Parcel</span>
           </span>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
@@ -24,8 +24,8 @@ const Navbar = () => {
           </a>
         </Button>
       </div>
-    </nav>);
-
+    </nav>
+  );
 };
 
 export default Navbar;

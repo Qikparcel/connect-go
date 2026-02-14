@@ -26,7 +26,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 mb-8 text-lime-600">
+            className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 mb-8">
 
             <span className="h-2 w-2 rounded-full bg-primary animate-pulse-glow" />
             <span className="text-sm font-medium text-primary">Now live for testing</span>
@@ -40,7 +40,7 @@ const HeroSection = () => {
             className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-6">
 
             Delivery, Reimagined.{" "}
-            <span className="text-gradient-primary text-lime-600">Local or Global.</span>
+            <span className="text-gradient-primary">Local or Global.</span>
           </motion.h1>
 
           {/* Subheading */}
