@@ -10,8 +10,8 @@ const PilotSection = () => {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+            transition={{ duration: 0.6 }}>
+
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5 mb-6">
               <FlaskConical className="h-3.5 w-3.5 text-accent" />
               <span className="text-sm font-medium text-accent">Live Pilot Update</span>
@@ -27,12 +27,12 @@ const PilotSection = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="glass-card rounded-lg p-6"
-            >
+              className="glass-card rounded-lg p-6">
+
               <Globe className="h-5 w-5 text-accent mb-3" />
               <h3 className="font-semibold mb-2 text-foreground">Global Routes</h3>
-              <p className="text-sm text-muted-foreground">
-                UK ↔ Zimbabwe currently limited to <span className="text-foreground font-medium">secure document relay</span> during pilot testing.
+              <p className="text-sm text-muted-foreground">UK ↔ Zimbabwe 
+UK ↔ South Africa currently limited to secure document relay during pilot testing.<span className="text-foreground font-medium">secure document relay</span> during pilot testing.
               </p>
             </motion.div>
 
@@ -41,30 +41,30 @@ const PilotSection = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="glass-card rounded-lg p-6"
-            >
+              className="glass-card rounded-lg p-6">
+
               <MapPin className="h-5 w-5 text-primary mb-3" />
               <h3 className="font-semibold mb-2 text-foreground">Local Deliveries</h3>
-              <p className="text-sm text-muted-foreground">
-                Open for <span className="text-foreground font-medium">standard parcel testing</span> across UK cities.
+              <p className="text-sm text-muted-foreground">Open for standard parcel testing across UK and Estonian cities.
+                <span className="text-foreground font-medium">standard parcel testing</span> across UK cities.
               </p>
             </motion.div>
           </div>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-sm text-muted-foreground mt-6 text-center"
-          >
-            This phased approach validates infrastructure while maintaining compliance and trust.{" "}
-            <span className="text-foreground font-medium">That's discipline, not limitation.</span>
-          </motion.p>
+          
+
+
+
+
+
+
+
+
+
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 };
 
 export default PilotSection;
