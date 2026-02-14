@@ -31,8 +31,8 @@ const PilotSection = () => {
 
               <Globe className="h-5 w-5 text-accent mb-3" />
               <h3 className="font-semibold mb-2 text-foreground">Global Routes</h3>
-              <p className="text-sm text-muted-foreground">UK ↔ Zimbabwe 
-UK ↔ South Africa currently limited to secure document relay during pilot testing.<span className="text-foreground font-medium">secure document relay</span> during pilot testing.
+              <p className="text-sm text-muted-foreground">UK ↔ Zimbabwe     UK ↔ South Africa       UK↔ Estonia 
+ are currently limited to secure document relay during pilot testing.<span className="text-foreground font-medium">secure document relay</span> during pilot testing.
               </p>
             </motion.div>
 
