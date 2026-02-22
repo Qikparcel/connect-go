@@ -16,6 +16,7 @@ const BetaBanner = () => {
           <span className="font-semibold">Launching with High-Trust Diaspora Routes — Phase 1 Pilot:</span>{" "}
           <span className="text-muted-foreground">
             🇬🇧 UK ↔ 🇿🇼 Zimbabwe &nbsp;·&nbsp; 🇬🇧 UK ↔ 🇿🇦 South Africa.
+            East and West African routes coming soon.
             Join early. Help shape the future of community-powered logistics.
           </span>
         </p>
