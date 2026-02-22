@@ -1,5 +1,6 @@
 import { Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import DarkModeToggle from "@/components/DarkModeToggle";
 
 const Navbar = () => {
   return (
@@ -16,11 +17,14 @@ const Navbar = () => {
           <a href="#travelers" className="hover:text-foreground transition-colors">Travelers</a>
           <a href="#business" className="hover:text-foreground transition-colors">Business</a>
         </div>
-        <Button variant="hero" size="sm" asChild>
-          <a href="https://app.qikparcel.com/" target="_blank" rel="noopener noreferrer">
-            Access Platform
-          </a>
-        </Button>
+        <div className="flex items-center gap-2">
+          <DarkModeToggle />
+          <Button variant="hero" size="sm" asChild>
+            <a href="https://app.qikparcel.com/" target="_blank" rel="noopener noreferrer">
+              Access Platform
+            </a>
+          </Button>
+        </div>
       </div>
     </nav>
   );
