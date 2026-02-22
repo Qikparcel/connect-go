@@ -8,6 +8,7 @@ import TrustSection from "@/components/TrustSection";
 import MissionSection from "@/components/MissionSection";
 import FinalCTASection from "@/components/FinalCTASection";
 import Footer from "@/components/Footer";
+import BackToTop from "@/components/BackToTop";
 
 const Index = () => {
   return (
@@ -22,6 +23,7 @@ const Index = () => {
       <MissionSection />
       <FinalCTASection />
       <Footer />
+      <BackToTop />
     </div>
   );
 };
