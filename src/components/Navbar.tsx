@@ -14,7 +14,7 @@ const NavLink = ({ id, active }: { id: string; active: boolean }) => (
   <a
     href={`#${id}`}
     onClick={scrollTo(id)}
-    className={`transition-colors ${active ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+    className={`relative transition-colors pb-1 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-0.5 after:bg-primary after:transition-transform after:duration-300 after:origin-bottom-left ${active ? "text-primary font-semibold after:w-full after:scale-x-100" : "text-muted-foreground hover:text-foreground after:w-full after:scale-x-0 hover:after:scale-x-100"}`}
   >
     {id.charAt(0).toUpperCase() + id.slice(1)}
   </a>
