@@ -12,7 +12,7 @@ const Navbar = () => {
             Qik<span className="text-primary">Parcel</span>
           </span>
         </div>
-        <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
+        <div className="flex items-center gap-4 md:gap-8 text-xs md:text-sm text-muted-foreground">
           <a href="#senders" className="hover:text-foreground transition-colors">Senders</a>
           <a href="#travelers" className="hover:text-foreground transition-colors">Travelers</a>
           <a href="#business" className="hover:text-foreground transition-colors">Business</a>
