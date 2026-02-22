@@ -12,11 +12,9 @@ const Navbar = () => {
           </span>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-          <a href="#how-it-works" className="hover:text-foreground transition-colors">How It Works</a>
-          <a href="#local" className="hover:text-foreground transition-colors">Local</a>
-          <a href="#global" className="hover:text-foreground transition-colors">Global</a>
-          <a href="#couriers" className="hover:text-foreground transition-colors">Couriers</a>
-          <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
+          <a href="#senders" className="hover:text-foreground transition-colors">Senders</a>
+          <a href="#travelers" className="hover:text-foreground transition-colors">Travelers</a>
+          <a href="#business" className="hover:text-foreground transition-colors">Business</a>
         </div>
         <Button variant="hero" size="sm" asChild>
           <a href="https://app.qikparcel.com/" target="_blank" rel="noopener noreferrer">
