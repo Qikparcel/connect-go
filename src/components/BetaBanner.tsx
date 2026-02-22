@@ -12,10 +12,10 @@ const BetaBanner = () => {
     >
       <div className="container mx-auto flex flex-col sm:flex-row items-center justify-center gap-3 px-4 py-3 text-center">
         <p className="text-sm text-foreground/90">
-          <span className="mr-1">🚧</span>
-          <span className="font-semibold">QikParcel is currently in BETA testing.</span>{" "}
+          <span className="mr-1">🚀</span>
+          <span className="font-semibold">Launching with High-Trust Diaspora Routes — Phase 1 Pilot:</span>{" "}
           <span className="text-muted-foreground">
-            We are operating pilot delivery corridors between the UK and Southern Africa.
+            🇬🇧 UK ↔ 🇿🇼 Zimbabwe &nbsp;·&nbsp; 🇬🇧 UK ↔ 🇿🇦 South Africa.
             Join early. Help shape the future of community-powered logistics.
           </span>
         </p>
