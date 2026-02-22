@@ -68,7 +68,7 @@ const HeroSection = () => {
           >
             <Button variant="hero" size="lg" className="text-base px-8 py-6 rounded-lg" asChild>
               <a href="https://app.qikparcel.com/" target="_blank" rel="noopener noreferrer">
-                Start a Delivery <ArrowRight className="ml-1 h-4 w-4" />
+                Send a Delivery <ArrowRight className="ml-1 h-4 w-4" />
               </a>
             </Button>
             <Button variant="heroOutline" size="lg" className="text-base px-8 py-6 rounded-lg" asChild>
