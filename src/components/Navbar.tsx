@@ -2,6 +2,11 @@ import { Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DarkModeToggle from "@/components/DarkModeToggle";
 
+const scrollTo = (id: string) => (e: React.MouseEvent) => {
+  e.preventDefault();
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+};
+
 const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
@@ -13,9 +18,9 @@ const Navbar = () => {
           </span>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-          <a href="#senders" className="hover:text-foreground transition-colors">Senders</a>
-          <a href="#travelers" className="hover:text-foreground transition-colors">Travelers</a>
-          <a href="#business" className="hover:text-foreground transition-colors">Business</a>
+          <a href="#senders" onClick={scrollTo("senders")} className="hover:text-foreground transition-colors">Senders</a>
+          <a href="#travelers" onClick={scrollTo("travelers")} className="hover:text-foreground transition-colors">Travelers</a>
+          <a href="#business" onClick={scrollTo("business")} className="hover:text-foreground transition-colors">Business</a>
         </div>
         <div className="flex items-center gap-2">
           <DarkModeToggle />
@@ -28,9 +33,9 @@ const Navbar = () => {
       </div>
       {/* Mobile nav links banner */}
       <div className="flex md:hidden items-center justify-center gap-6 border-t border-border/30 py-2 text-sm text-muted-foreground">
-        <a href="#senders" className="hover:text-foreground transition-colors">Senders</a>
-        <a href="#travelers" className="hover:text-foreground transition-colors">Travelers</a>
-        <a href="#business" className="hover:text-foreground transition-colors">Business</a>
+        <a href="#senders" onClick={scrollTo("senders")} className="hover:text-foreground transition-colors">Senders</a>
+        <a href="#travelers" onClick={scrollTo("travelers")} className="hover:text-foreground transition-colors">Travelers</a>
+        <a href="#business" onClick={scrollTo("business")} className="hover:text-foreground transition-colors">Business</a>
       </div>
     </nav>
   );
