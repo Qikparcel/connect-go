@@ -1,11 +1,16 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { Package, Plane, Store, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const actions = [
+  { icon: Package, label: "Send a Parcel", variant: "hero" as const },
+  { icon: Plane, label: "Become a Traveler", variant: "heroOutline" as const },
+  { icon: Store, label: "Grow Your Business", variant: "heroOutline" as const },
+];
 
 const FinalCTASection = () => {
   return (
     <section className="py-32 border-t border-border/40 relative overflow-hidden">
-      {/* Subtle glow */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px]" />
       </div>
@@ -19,11 +24,10 @@ const FinalCTASection = () => {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-              The future of delivery is not warehouses.{" "}
-              <span className="text-gradient-primary">It's people already on the move.</span>
+              Ready to <span className="text-gradient-primary">Get Started?</span>
             </h2>
             <p className="text-lg text-muted-foreground mb-10">
-              Join the QikParcel network today.
+              Whether you're sending, earning, or scaling your business — QikParcel connects people, parcels, and journeys safely.
             </p>
           </motion.div>
 
@@ -32,12 +36,16 @@ const FinalCTASection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Button variant="hero" size="lg" className="text-base px-10 py-6 rounded-lg" asChild>
-              <a href="https://app.qikparcel.com/" target="_blank" rel="noopener noreferrer">
-                Access the Platform <ArrowRight className="ml-1 h-4 w-4" />
-              </a>
-            </Button>
+            {actions.map((action) => (
+              <Button key={action.label} variant={action.variant} size="lg" className="text-base px-8 py-6 rounded-lg w-full sm:w-auto" asChild>
+                <a href="https://app.qikparcel.com/" target="_blank" rel="noopener noreferrer">
+                  <action.icon className="mr-2 h-4 w-4" />
+                  {action.label}
+                </a>
+              </Button>
+            ))}
           </motion.div>
         </div>
       </div>
