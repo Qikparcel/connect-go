@@ -116,8 +116,17 @@ const OnboardingForm = () => {
       .insert(toOnboardingRow(values, source));
 
     if (error) {
+      // Log the real reason. A generic message alone makes this undebuggable
+      // from a phone at a stall, which is exactly where it will fail.
+      console.error("[onboarding] submission failed", error);
+
+      // A blocked request looks identical to being offline from here, but
+      // browser extensions blocking *.supabase.co is by far the likelier cause.
+      const blocked = /failed to fetch|networkerror|load failed/i.test(error.message ?? "");
       toast.error("We couldn't save that", {
-        description: "Please check your connection and try again.",
+        description: blocked
+          ? "The request didn't reach us — an ad blocker or privacy extension may be blocking it. Try again, or turn it off for this site."
+          : "Something went wrong on our side. Your answers are saved — please try again.",
       });
       return;
     }

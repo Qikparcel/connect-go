@@ -119,6 +119,38 @@ describe("OnboardingForm", () => {
     );
   });
 
+  it("keeps the answers when saving fails, so nothing has to be retyped", async () => {
+    const user = userEvent.setup();
+    insert.mockResolvedValueOnce({ error: { message: "Failed to fetch" } });
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    renderForm();
+
+    await user.click(screen.getByRole("radio", { name: "Zimfest" }));
+    await clickContinue(user);
+    await user.click(await screen.findByRole("checkbox", { name: "Sender" }));
+    await clickContinue(user);
+
+    await screen.findByRole("heading", { name: /about what you send/i });
+    await user.type(screen.getByLabelText(/what do you send/i), "Clothes");
+    await user.click(screen.getByRole("radio", { name: "Monthly" }));
+    await user.type(screen.getByLabelText(/you send from/i), "Leeds");
+    await user.type(screen.getByLabelText(/you send to/i), "Bulawayo");
+    await clickContinue(user);
+
+    await screen.findByRole("heading", { name: /your details/i });
+    await user.type(screen.getByLabelText(/full name/i), "Tanaka Moyo");
+    await user.type(screen.getByLabelText(/whatsapp number/i), "+447700900123");
+    await user.click(screen.getByRole("button", { name: /join qikparcel/i }));
+
+    await waitFor(() => expect(insert).toHaveBeenCalled());
+    // No false confirmation, and the draft survives for a retry.
+    expect(screen.queryByText(/you're on the list/i)).not.toBeInTheDocument();
+    expect(window.localStorage.getItem("qikparcel-onboarding-draft-v1")).toContain("Tanaka Moyo");
+    // The real cause is logged rather than swallowed.
+    expect(consoleError).toHaveBeenCalledWith("[onboarding] submission failed", expect.anything());
+    consoleError.mockRestore();
+  });
+
   it("restores answers after a page reload", async () => {
     const user = userEvent.setup();
     const { unmount } = renderForm();
