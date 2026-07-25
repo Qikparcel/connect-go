@@ -1,4 +1,5 @@
 import { Package } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import { useEffect, useState } from "react";
@@ -58,10 +59,14 @@ const Navbar = () => {
         </div>
         <div className="flex items-center gap-2">
           <DarkModeToggle />
-          <Button variant="hero" size="sm" asChild>
+          {/* Hidden on the narrowest screens so the Join CTA keeps its space. */}
+          <Button variant="heroOutline" size="sm" className="hidden sm:inline-flex" asChild>
             <a href="https://app.qikparcel.com/" target="_blank" rel="noopener noreferrer">
               Access Platform
             </a>
+          </Button>
+          <Button variant="hero" size="sm" asChild>
+            <Link to="/onboarding">Join</Link>
           </Button>
         </div>
       </div>

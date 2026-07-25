@@ -7,6 +7,15 @@ globalThis.ResizeObserver ??= class {
   disconnect() {}
 };
 
+globalThis.IntersectionObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() {
+    return [];
+  }
+} as unknown as typeof IntersectionObserver;
+
 Element.prototype.scrollIntoView ??= () => {};
 window.scrollTo ??= () => {};
 
