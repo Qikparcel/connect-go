@@ -48,7 +48,7 @@ const Navbar = () => {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center">
           <img
-            src={logoAsset.url}
+            src={logoUrl}
             alt="QikParcel"
             className="h-8 w-auto object-contain"
           />
