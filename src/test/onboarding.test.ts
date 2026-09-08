@@ -72,7 +72,7 @@ describe("onboardingSchema", () => {
 
   it("treats email as optional but validates it when present", () => {
     const base = {
-      roles: ["Sender"] as const,
+      roles: ["Sender"] as ("Business" | "Courier" | "Sender" | "Traveller")[],
       senderItems: "Clothes",
       senderFrequency: "Monthly" as const,
       senderFrom: "London",
