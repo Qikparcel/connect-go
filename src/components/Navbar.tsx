@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import { useEffect, useState } from "react";
-import logoAsset from "@/assets/qikparcel-logo.png.asset.json";
+import logoUrl from "@/assets/qikparcel-logo.png";
 
 const sections = ["senders", "travelers", "business"] as const;
 
