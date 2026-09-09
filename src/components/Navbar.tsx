@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import { useEffect, useState } from "react";
-import logoUrl from "@/assets/qikparcel-logo.svg";
+import logoAsset from "@/assets/qikparcel-logo.png.asset.json";
 
 const sections = ["senders", "travelers", "business"] as const;
 
@@ -48,9 +48,9 @@ const Navbar = () => {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center">
           <img
-            src={logoUrl}
+            src={logoAsset.url}
             alt="QikParcel"
-            className="h-12 w-auto object-contain min-w-[48px]"
+            className="h-10 md:h-12 w-auto object-contain"
           />
         </Link>
         <div className="hidden md:flex items-center gap-8 text-sm">
