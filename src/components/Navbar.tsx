@@ -50,7 +50,7 @@ const Navbar = () => {
           <img
             src={logoUrl}
             alt="QikParcel"
-            className="h-10 w-auto object-contain"
+            className="h-12 w-auto object-contain min-w-[48px]"
           />
         </Link>
         <div className="hidden md:flex items-center gap-8 text-sm">
