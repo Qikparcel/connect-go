@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import { useEffect, useState } from "react";
-import logoUrl from "@/assets/qikparcel-logo.png";
+import logoUrl from "@/assets/qikparcel-logo.svg";
 
 const sections = ["senders", "travelers", "business"] as const;
 
@@ -50,7 +50,7 @@ const Navbar = () => {
           <img
             src={logoUrl}
             alt="QikParcel"
-            className="h-8 w-auto object-contain"
+            className="h-10 w-auto object-contain"
           />
         </Link>
         <div className="hidden md:flex items-center gap-8 text-sm">
