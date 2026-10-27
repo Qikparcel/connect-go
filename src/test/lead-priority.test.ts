@@ -10,6 +10,12 @@ describe("lead priority", () => {
   it("traveller with no confirmed trip is FUTURE", () => expect(leadPriority("traveller", "No confirmed trip", "5–10kg")).toBe("FUTURE"));
   it("merchant needing service immediately is HOT", () => expect(leadPriority("merchant", "Immediately")).toBe("HOT"));
   it("exploring merchant is FUTURE", () => expect(leadPriority("merchant", "Exploring")).toBe("FUTURE"));
+  it("chat sender ready within 3 days is HOT", () => expect(leadPriority("sender", "Within 3 days")).toBe("HOT"));
+  it("chat sender sending later is FUTURE", () => expect(leadPriority("sender", "Later")).toBe("FUTURE"));
+  it("chat traveller within 7 days with no spare space is WARM", () => expect(leadPriority("traveller", "Within 7 days", "None")).toBe("WARM"));
+  it("chat traveller not booked yet is FUTURE", () => expect(leadPriority("traveller", "Not booked yet", "1–5kg")).toBe("FUTURE"));
+  it("chat merchant starting this month is WARM", () => expect(leadPriority("merchant", "This month")).toBe("WARM"));
+  it("chat merchant just exploring is FUTURE", () => expect(leadPriority("merchant", "Just exploring")).toBe("FUTURE"));
   it("same number in different formats matches one person", () =>
     expect(normalizePhone("+44 7443 191370")).toBe(normalizePhone("0044-7443191370")));
 });
