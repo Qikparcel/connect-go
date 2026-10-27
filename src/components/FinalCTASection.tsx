@@ -1,15 +1,17 @@
+import { useOpenLead } from "@/components/leads/LeadDialog";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Package, Plane, Store, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const actions = [
-  { icon: Package, label: "Send a Parcel", variant: "heroOutline" as const },
-  { icon: Plane, label: "Become a Traveler", variant: "heroOutline" as const },
-  { icon: Store, label: "Grow Your Business", variant: "heroOutline" as const },
+  { icon: Package, type: "sender" as const, label: "Send a Parcel", variant: "heroOutline" as const },
+  { icon: Plane, type: "traveller" as const, label: "Become a Traveler", variant: "heroOutline" as const },
+  { icon: Store, type: "merchant" as const, label: "Grow Your Business", variant: "heroOutline" as const },
 ];
 
 const FinalCTASection = () => {
+  const openLead = useOpenLead();
   return (
     <section className="py-32 border-t border-border/40 relative overflow-hidden">
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -57,12 +59,10 @@ const FinalCTASection = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             {actions.map((action) => (
-              <Button key={action.label} variant={action.variant} size="lg" className="text-base px-8 py-6 rounded-lg w-full sm:w-auto" asChild>
-                <a href="https://app.qikparcel.com/" target="_blank" rel="noopener noreferrer">
+              <Button key={action.label} variant={action.variant} size="lg" className="text-base px-8 py-6 rounded-lg w-full sm:w-auto" onClick={() => openLead(action.type)}>
                   <action.icon className="mr-2 h-4 w-4" />
                   {action.label}
-                </a>
-              </Button>
+                </Button>
             ))}
           </motion.div>
         </div>
