@@ -168,7 +168,7 @@ Deno.serve(async (req) => {
         }
         return json({ reference, priority: row.priority, notification });
       }
-      if (error.code !== "23505") throw error;
+      if (!error || error.code !== "23505") throw error ?? new Error("Lead was not returned after saving");
     }
     throw new Error("Could not create reference");
   } catch (e) {
