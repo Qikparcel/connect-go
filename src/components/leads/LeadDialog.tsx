@@ -68,9 +68,11 @@ export function LeadForm({ type, inline = false, onDone }: { type: LeadType; inl
       const err = validateField(f, values[f.name] ?? "");
       if (err) errs[f.name] = err;
     });
-    if (step === 1 && !consent) errs.consent = "Please agree so we can contact you";
+    if (step === 1 && !consent) errs.consent = "Please tick this box so we can contact you about your request";
     setErrors(errs);
-    return Object.keys(errs).length === 0;
+    const first = Object.keys(errs)[0];
+    if (first) setTimeout(() => document.getElementById(first)?.focus(), 0);
+    return !first;
   };
 
   const submit = async () => {
@@ -87,6 +89,16 @@ export function LeadForm({ type, inline = false, onDone }: { type: LeadType; inl
       if (error instanceof FunctionsHttpError) {
         const body = await error.context.json().catch(() => null);
         if (body?.error) msg = body.error;
+        const fields = body?.fields as Record<string, string[]> | undefined;
+        if (fields && Object.keys(fields).length) {
+          const mapped: Record<string, string> = {};
+          Object.entries(fields).forEach(([k, v]) => (mapped[k] = v?.[0] ?? "Please check this field"));
+          setErrors(mapped);
+          if (form.steps[0].some((f) => mapped[f.name])) setStep(0);
+          msg = "Some details need fixing — they're highlighted below. Your other answers are saved.";
+        }
+      } else if (error) {
+        msg = "We couldn't reach our server. Check your internet connection and press Submit again — your answers are still here.";
       }
       setServerError(msg);
       return;
@@ -147,6 +159,11 @@ export function LeadForm({ type, inline = false, onDone }: { type: LeadType; inl
       >
         <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true"
           className="absolute -left-[9999px] h-0 w-0 opacity-0" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
+        {Object.values(errors).some(Boolean) && (
+          <div role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+            Please fix the highlighted {Object.values(errors).filter(Boolean).length === 1 ? "field" : "fields"} to continue. Nothing you've typed has been lost.
+          </div>
+        )}
         {form.steps[step].map((f) => (
           <div key={f.name} className="space-y-1.5">
             <Label htmlFor={f.name}>
@@ -154,16 +171,17 @@ export function LeadForm({ type, inline = false, onDone }: { type: LeadType; inl
             </Label>
             {f.kind === "select" ? (
               <Select value={values[f.name] ?? ""} onValueChange={(v) => set(f.name, v)}>
-                <SelectTrigger id={f.name} aria-invalid={!!errors[f.name]}><SelectValue placeholder="Choose…" /></SelectTrigger>
+                <SelectTrigger id={f.name} aria-invalid={!!errors[f.name]} aria-describedby={errors[f.name] ? `${f.name}-error` : undefined} className={errors[f.name] ? "border-destructive" : ""}><SelectValue placeholder="Choose…" /></SelectTrigger>
                 <SelectContent>
                   {f.options!.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
                 </SelectContent>
               </Select>
             ) : (
               <Input id={f.name} type={f.kind} placeholder={f.placeholder} maxLength={300}
-                value={values[f.name] ?? ""} onChange={(e) => set(f.name, e.target.value)} aria-invalid={!!errors[f.name]} />
+                value={values[f.name] ?? ""} onChange={(e) => set(f.name, e.target.value)} aria-invalid={!!errors[f.name]}
+                aria-describedby={errors[f.name] ? `${f.name}-error` : undefined} className={errors[f.name] ? "border-destructive focus-visible:ring-destructive" : ""} />
             )}
-            {errors[f.name] && <p className="text-xs text-destructive">{errors[f.name]}</p>}
+            {errors[f.name] && <p id={`${f.name}-error`} className="text-xs text-destructive">{errors[f.name]}</p>}
           </div>
         ))}
         {step === 1 && (
@@ -177,7 +195,7 @@ export function LeadForm({ type, inline = false, onDone }: { type: LeadType; inl
             {errors.consent && <p className="text-xs text-destructive">{errors.consent}</p>}
           </div>
         )}
-        {serverError && <p className="text-sm text-destructive" role="alert">{serverError}</p>}
+        {serverError && <p className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive" role="alert">{serverError}</p>}
         <div className="flex gap-3 pt-2">
           {step === 1 && <Button type="button" variant="outline" onClick={() => setStep(0)} disabled={submitting}>Back</Button>}
           <Button type="submit" variant="hero" className="flex-1" disabled={submitting}>

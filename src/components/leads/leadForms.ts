@@ -76,15 +76,16 @@ export const FORMS: Record<LeadType, { title: string; steps: [Field[], Field[]];
 /** Returns an error message for a field, or null if valid. */
 export function validateField(f: Field, value: string): string | null {
   const v = value.trim();
-  if (!v) return f.optional ? null : "Required";
-  if (v.length > 300) return "Too long";
+  if (!v) return f.optional ? null : f.kind === "select" ? `Please choose ${f.label.toLowerCase()}` : `Please enter ${f.label.toLowerCase()}`;
+  if (v.length > 300) return "Please keep this under 300 characters";
   if (f.kind === "tel") {
     const digits = v.replace(/\D/g, "").replace(/^00/, "");
-    if (!v.startsWith("+") && !v.startsWith("00")) return "Include your country code, e.g. +44";
-    if (digits.length < 8 || digits.length > 15) return "Enter a valid number";
+    if (!v.startsWith("+") && !v.startsWith("00")) return "Start with your country code, e.g. +44 7700 900123";
+    if (digits.length < 8 || digits.length > 15) return "That number looks too short or too long. Check the digits and country code";
   }
-  if (f.kind === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Enter a valid email";
-  if (f.kind === "text" && v.length < 2) return "Too short";
+  if (f.kind === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Enter an email like name@example.com";
+  if (f.kind === "date" && v < new Date().toISOString().slice(0, 10)) return "Please choose today or a future date";
+  if (f.kind === "text" && v.length < 2) return "Please enter at least 2 characters";
   return null;
 }
 
