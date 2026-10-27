@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Send an Ask QikParcel sender test enquiry and verify dashboard and email receipt at info@qikparcel.com (email sending awaits domain verification).
+
 - [x] Clear validation + submission errors on enquiry forms
 - [x] Fix contact-overwrite security issue, then publish
 - [ ] AI lead review in admin dashboard: classify each enquiry + recommend next step
