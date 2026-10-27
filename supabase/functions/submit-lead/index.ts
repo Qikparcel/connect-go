@@ -2,6 +2,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3";
 import { leadPriority, normalizePhone } from "../_shared/priority.ts";
+import { sendTemplateEmail } from "../_shared/transactional-email-templates/send-email.ts";
+import { ENQUIRY_RECIPIENT } from "../_shared/enquiry-email-config.ts";
 
 const CITIES = ["London", "Harare", "Johannesburg", "Other"] as const;
 const WEIGHTS = ["Under 1kg", "1–5kg", "5–10kg", "Over 10kg"] as const;
@@ -137,12 +139,36 @@ Deno.serve(async (req) => {
 
     for (let i = 0; i < 3; i++) {
       const reference = makeRef();
-      const { error } = await db.from("leads").insert({
+      const { data: lead, error } = await db.from("leads").insert({
         ...row, reference, contact_id: contact.id, lead_type: leadType, consent: d.consent,
         source, utm: d.utm ?? {},
-      });
-      if (!error) return json({ reference, priority: row.priority });
-      if (error.code !== "23505") throw error;
+      }).select("id").single();
+      if (!error && lead) {
+        let notification: "sent" | "suppressed" | "pending" = "pending";
+        try {
+          const result = await sendTemplateEmail("enquiry-notification", ENQUIRY_RECIPIENT, {
+            idempotencyKey: `enquiry-notification-${lead.id}`,
+            templateData: {
+              reference, type: leadType, name: d.fullName, phone, email, business,
+              origin: row.origin, destination: row.destination, urgency: row.urgency,
+              weight: row.weight, date: row.travel_date, priority: row.priority,
+              source, consent: d.consent,
+              details: Object.entries(row.details as Record<string, unknown>)
+                .filter(([key]) => !key.startsWith("submitted"))
+                .map(([key, value]) => `${key}: ${value}`).join("\n"),
+            },
+          });
+          notification = result.sent ? "sent" : "suppressed";
+        } catch (error) {
+          // A failed email must never lose the saved enquiry or invite duplicate submissions.
+          console.error("enquiry notification not sent", {
+            leadId: lead.id,
+            code: error && typeof error === "object" && "code" in error ? error.code : "email_error",
+          });
+        }
+        return json({ reference, priority: row.priority, notification });
+      }
+      if (!error || error.code !== "23505") throw error ?? new Error("Lead was not returned after saving");
     }
     throw new Error("Could not create reference");
   } catch (e) {
