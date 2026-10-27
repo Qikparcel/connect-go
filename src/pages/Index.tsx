@@ -12,7 +12,7 @@ import BackToTop from "@/components/BackToTop";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-44 sm:pb-24">
       <Navbar />
       <BetaBanner />
       <HeroSection />
