@@ -166,6 +166,7 @@ const ChatWidget = () => {
   const reset = () => {
     localStorage.removeItem(MSG_KEY);
     localStorage.removeItem(ID_KEY);
+    localStorage.removeItem(TOKEN_KEY);
     setChat(loadChat());
   };
 
