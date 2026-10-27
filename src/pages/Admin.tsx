@@ -1,0 +1,177 @@
+import { useEffect, useMemo, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
+import { Link } from "react-router-dom";
+import { MessageCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const STATUSES = ["New", "Contacted", "Qualified", "Matched", "Booked", "Lost"];
+
+type Lead = {
+  id: string; reference: string; lead_type: string; origin: string | null; destination: string | null;
+  travel_date: string | null; urgency: string | null; weight: string | null; priority: string; status: string;
+  owner: string | null; created_at: string; details: Record<string, string>;
+  lead_contacts: { full_name: string; phone: string; email: string | null; business_name: string | null } | null;
+};
+
+function AuthForm() {
+  const [mode, setMode] = useState<"in" | "up">("in");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [msg, setMsg] = useState("");
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMsg("");
+    const { error } = mode === "in"
+      ? await supabase.auth.signInWithPassword({ email, password })
+      : await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/admin` } });
+    if (error) setMsg(error.message);
+    else if (mode === "up") setMsg("Check your email to confirm your account, then sign in.");
+  };
+  return (
+    <form onSubmit={submit} className="mx-auto mt-24 max-w-sm space-y-4 rounded-xl border border-border bg-card p-6">
+      <h1 className="text-2xl font-black text-foreground">Lead dashboard</h1>
+      <div className="space-y-1.5"><Label htmlFor="email">Email</Label><Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
+      <div className="space-y-1.5"><Label htmlFor="pw">Password</Label><Input id="pw" type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
+      {msg && <p className="text-sm text-muted-foreground">{msg}</p>}
+      <Button type="submit" variant="hero" className="w-full">{mode === "in" ? "Sign in" : "Create account"}</Button>
+      <button type="button" className="text-sm text-primary hover:underline" onClick={() => setMode(mode === "in" ? "up" : "in")}>
+        {mode === "in" ? "First time? Create an account" : "Have an account? Sign in"}
+      </button>
+    </form>
+  );
+}
+
+const prioColor: Record<string, string> = { HOT: "bg-destructive text-destructive-foreground", WARM: "bg-primary text-primary-foreground", FUTURE: "bg-secondary text-secondary-foreground" };
+
+function Dashboard() {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [type, setType] = useState("all");
+  const [prio, setPrio] = useState("all");
+  const [route, setRoute] = useState("");
+
+  useEffect(() => {
+    supabase.from("leads").select("*, lead_contacts(full_name, phone, email, business_name)")
+      .order("created_at", { ascending: false }).limit(1000)
+      .then(({ data }) => { setLeads((data as unknown as Lead[]) ?? []); setLoading(false); });
+  }, []);
+
+  const update = async (id: string, patch: Partial<Pick<Lead, "status" | "owner">>) => {
+    setLeads((ls) => ls.map((l) => (l.id === id ? { ...l, ...patch } : l)));
+    await supabase.from("leads").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id);
+  };
+
+  const shown = useMemo(() => leads.filter((l) =>
+    (type === "all" || l.lead_type === type) && (prio === "all" || l.priority === prio) &&
+    (!route || `${l.origin} ${l.destination}`.toLowerCase().includes(route.toLowerCase()))), [leads, type, prio, route]);
+
+  const today = new Date().toISOString().slice(0, 10);
+  const stats = [
+    ["New sender leads", leads.filter((l) => l.lead_type === "sender" && l.status === "New").length],
+    ["Upcoming traveller departures", leads.filter((l) => l.lead_type === "traveller" && l.travel_date && l.travel_date >= today).length],
+    ["Travellers with space", leads.filter((l) => l.lead_type === "traveller" && l.weight !== "Unsure").length],
+    ["Merchant enquiries", leads.filter((l) => l.lead_type === "merchant").length],
+    ["HOT leads", leads.filter((l) => l.priority === "HOT").length],
+    ["Lead → booking", leads.length ? `${Math.round((leads.filter((l) => l.status === "Booked").length / leads.length) * 100)}%` : "—"],
+  ];
+
+  return (
+    <div className="container mx-auto px-4 py-10">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-black text-foreground">Leads</h1>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild><Link to="/">Website</Link></Button>
+          <Button variant="outline" onClick={() => supabase.auth.signOut()}>Sign out</Button>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-8">
+        {stats.map(([label, n]) => (
+          <div key={label} className="rounded-xl border border-border bg-card p-4">
+            <p className="text-2xl font-black text-foreground">{n}</p>
+            <p className="text-xs text-muted-foreground">{label}</p>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-3 mb-4">
+        <Select value={type} onValueChange={setType}><SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value="all">All types</SelectItem><SelectItem value="sender">Senders</SelectItem><SelectItem value="traveller">Travellers</SelectItem><SelectItem value="merchant">Merchants</SelectItem></SelectContent></Select>
+        <Select value={prio} onValueChange={setPrio}><SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value="all">All priorities</SelectItem><SelectItem value="HOT">HOT</SelectItem><SelectItem value="WARM">WARM</SelectItem><SelectItem value="FUTURE">FUTURE</SelectItem></SelectContent></Select>
+        <Input className="w-56" placeholder="Filter route, e.g. Harare" value={route} onChange={(e) => setRoute(e.target.value)} />
+      </div>
+      <div className="overflow-x-auto rounded-xl border border-border bg-card">
+        <table className="w-full text-sm">
+          <thead className="text-left text-muted-foreground border-b border-border">
+            <tr>{["Ref", "Type", "Priority", "Name", "Route", "Date / when", "Weight / space", "Status", "Owner", ""].map((h) => <th key={h} className="p-3 font-medium">{h}</th>)}</tr>
+          </thead>
+          <tbody>
+            {loading && <tr><td colSpan={10} className="p-6 text-center text-muted-foreground">Loading…</td></tr>}
+            {!loading && shown.length === 0 && <tr><td colSpan={10} className="p-6 text-center text-muted-foreground">No leads yet.</td></tr>}
+            {shown.map((l) => (
+              <tr key={l.id} className="border-b border-border/50 align-top">
+                <td className="p-3 font-mono text-xs">{l.reference}<div className="text-muted-foreground">{new Date(l.created_at).toLocaleDateString()}</div></td>
+                <td className="p-3 capitalize">{l.lead_type}</td>
+                <td className="p-3"><Badge className={prioColor[l.priority]}>{l.priority}</Badge></td>
+                <td className="p-3">{l.lead_contacts?.business_name && <div className="font-semibold">{l.lead_contacts.business_name}</div>}{l.lead_contacts?.full_name}<div className="text-xs text-muted-foreground">{l.lead_contacts?.phone}</div></td>
+                <td className="p-3">{l.origin} → {l.destination}</td>
+                <td className="p-3">{l.travel_date ?? ""}<div className="text-xs text-muted-foreground">{l.urgency}</div></td>
+                <td className="p-3">{l.weight}</td>
+                <td className="p-3">
+                  <Select value={l.status} onValueChange={(v) => update(l.id, { status: v })}>
+                    <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
+                    <SelectContent>{STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                  </Select>
+                </td>
+                <td className="p-3"><Input className="h-8 w-28" defaultValue={l.owner ?? ""} maxLength={60} onBlur={(e) => e.target.value !== (l.owner ?? "") && update(l.id, { owner: e.target.value || null })} /></td>
+                <td className="p-3">
+                  {l.lead_contacts?.phone && (
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={`https://wa.me/${l.lead_contacts.phone.replace("+", "")}?text=${encodeURIComponent(`Hi ${l.lead_contacts.full_name}, this is QikParcel following up on ${l.reference}.`)}`} target="_blank" rel="noopener noreferrer">
+                        <MessageCircle className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+const Admin = () => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!session) { setIsAdmin(null); return; }
+    supabase.from("user_roles").select("role").eq("user_id", session.user.id).eq("role", "admin").maybeSingle()
+      .then(({ data }) => setIsAdmin(!!data));
+  }, [session]);
+
+  return (
+    <main className="min-h-screen bg-background">
+      {!session ? <AuthForm /> : isAdmin === null ? <p className="p-10 text-center text-muted-foreground">Loading…</p> : isAdmin ? <Dashboard /> : (
+        <div className="mx-auto mt-24 max-w-sm text-center space-y-4">
+          <p className="text-foreground">This account doesn't have access to the lead dashboard.</p>
+          <Button variant="outline" onClick={() => supabase.auth.signOut()}>Sign out</Button>
+        </div>
+      )}
+    </main>
+  );
+};
+
+export default Admin;
