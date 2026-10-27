@@ -2,7 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 import { FunctionsHttpError } from "@supabase/supabase-js";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription as DDesc, DialogHeader as DHeader, DialogTitle as DTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,8 +32,14 @@ export function LeadProvider({ children }: { children: ReactNode }) {
   );
 }
 
-function LeadForm({ type }: { type: LeadType }) {
+const PlainTitle = ({ className, children }: { className?: string; children: ReactNode }) => <h2 className={`text-lg font-semibold ${className ?? ""}`}>{children}</h2>;
+const PlainDesc = ({ className, children }: { className?: string; children: ReactNode }) => <p className={`text-sm text-muted-foreground ${className ?? ""}`}>{children}</p>;
+
+export function LeadForm({ type, inline = false }: { type: LeadType; inline?: boolean }) {
   const form = FORMS[type];
+  const DialogTitle = inline ? PlainTitle : DTitle;
+  const DialogDescription = inline ? PlainDesc : DDesc;
+  const DialogHeader = inline ? ({ children }: { children: ReactNode }) => <div className="mb-4 space-y-1.5">{children}</div> : DHeader;
   const [step, setStep] = useState(0);
   const [values, setValues] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
