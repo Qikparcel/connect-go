@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_conversations: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          interest: string | null
+          messages: Json
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          interest?: string | null
+          messages?: Json
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          interest?: string | null
+          messages?: Json
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lead_contacts: {
         Row: {
           business_name: string | null
