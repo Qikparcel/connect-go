@@ -13,7 +13,8 @@ dist-ssr
 *.local
 
 # Local env files — keep .env.example tracked
-.env
+# .env is tracked: it only holds the public Supabase URL + publishable key (needed at build time)
+!.env
 .env.*
 !.env.example
 
