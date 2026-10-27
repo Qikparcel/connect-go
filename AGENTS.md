@@ -8,3 +8,6 @@
 - Search Console verification lives in the root HTML head and the sitemap is served from public/sitemap.xml. Why: Google must fetch both directly from the published origin without client-side rendering.
 - Authentication emails use the scaffolded managed auth-email-hook and shared templates; redeploy the hook after template edits. Why: managed delivery requires this handler contract and serves deployed templates.
 - Enquiry notifications send through the managed template helper only after submit-lead saves the lead, with its ID as the idempotency key and a server-owned recipient; email failures must not reject saved enquiries. Why: visitor submissions remain safe while email delivery is unavailable.
+- Team authentication is shared by the dedicated sign-in page and protected admin dashboard; validate users with getUser and roles with has_role. Why: navigation must not grant permissions.
+- Website enquiry bookings are separate records, created and decided only through admin-checked database RPCs with atomic pending-only decisions; approval also marks the lead Booked. Why: decisions are auditable and cannot be overwritten by concurrent clients.
+- Profiles store user-facing team names only and never roles. Why: self-edited profile data must not grant privileges.

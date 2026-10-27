@@ -50,6 +50,13 @@
       "when": 1793136685354,
       "tag": "0006_allow_chat_event_check",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793142924515,
+      "tag": "0007_team_profiles_and_booking_approval",
+      "breakpoints": true
     }
   ]
 }
