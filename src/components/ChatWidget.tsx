@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { useOpenLead } from "@/components/leads/LeadDialog";
 import { WHATSAPP, type LeadType } from "@/components/leads/leadForms";
 import logo from "@/assets/qikparcel-logo.png";
+import GuidedChat from "@/components/chat/GuidedChat";
+import { track } from "@/lib/tracking";
 
 const ID_KEY = "qik-chat-id";
 const MSG_KEY = "qik-chat-messages";
@@ -34,7 +36,9 @@ const STARTERS = [
   { text: "I want delivery for my business", icon: Store },
 ];
 
-function ChatWindow({ initial, onReset }: { initial: { id: string; messages: UIMessage[] }; onReset: () => void }) {
+function ChatWindow({ initial, onReset, initialQuestion, onUsedQuestion }: {
+  initial: { id: string; messages: UIMessage[] }; onReset: () => void; initialQuestion?: string; onUsedQuestion?: () => void;
+}) {
   const openLead = useOpenLead();
   const [error, setError] = useState("");
   const transport = useMemo(() => new DefaultChatTransport({
@@ -61,6 +65,12 @@ function ChatWindow({ initial, onReset }: { initial: { id: string; messages: UIM
     setError("");
     sendMessage({ text });
   };
+
+  const asked = useRef(false);
+  useEffect(() => {
+    if (initialQuestion && !asked.current) { asked.current = true; send(initialQuestion); onUsedQuestion?.(); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialQuestion]);
 
   const waLink = (summary?: string) =>
     `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hi QikParcel, I was chatting on your website${summary ? `: ${summary}` : "."}`)}`;
@@ -137,6 +147,8 @@ function ChatWindow({ initial, onReset }: { initial: { id: string; messages: UIM
 const ChatWidget = () => {
   const [open, setOpen] = useState(false);
   const [chat, setChat] = useState(loadChat);
+  const [mode, setMode] = useState<"guided" | "ai">("guided");
+  const [question, setQuestion] = useState<string | undefined>();
 
   const reset = () => {
     localStorage.removeItem(MSG_KEY);
@@ -144,29 +156,38 @@ const ChatWidget = () => {
     setChat(loadChat());
   };
 
+  const toggle = () => setOpen((o) => { if (!o) track("chat_opened"); return !o; });
+
   return (
     <>
       {open && (
-        <div className="fixed inset-x-2 bottom-2 top-16 z-[60] flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:inset-auto sm:bottom-44 sm:right-4 sm:h-[min(560px,calc(100vh-13rem))] sm:w-[380px]">
+        <div className="fixed inset-0 z-[60] flex flex-col overflow-hidden bg-card sm:inset-auto sm:bottom-24 sm:right-4 sm:h-[min(600px,calc(100vh-8rem))] sm:w-[400px] sm:rounded-2xl sm:border sm:border-border sm:shadow-2xl">
           <div className="flex items-center gap-3 border-b border-border bg-secondary px-4 py-3">
             <img src={logo} alt="" className="h-7 w-auto" />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-foreground">Chat with Qik</p>
-              <p className="text-xs text-muted-foreground">QikParcel assistant · team replies on WhatsApp</p>
+              <p className="text-sm font-semibold text-foreground">Ask QikParcel</p>
+              <p className="text-xs text-muted-foreground">{mode === "ai" ? "Ask Qik anything" : "Quick questions, then we'll follow up"}</p>
             </div>
+            {mode === "ai" && (
+              <button onClick={() => setMode("guided")} className="rounded-md px-2 py-1 text-xs text-primary hover:underline">Back to enquiry</button>
+            )}
             <button aria-label="Close chat" onClick={() => setOpen(false)} className="rounded-md p-1 text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
           </div>
           <div className="min-h-0 flex-1">
-            <ChatWindow key={chat.id} initial={chat} onReset={reset} />
+            <div className={mode === "guided" ? "h-full" : "hidden"}>
+              <GuidedChat onAskAi={(q) => { setQuestion(q); setMode("ai"); }} />
+            </div>
+            {mode === "ai" && <ChatWindow key={chat.id} initial={chat} onReset={reset} initialQuestion={question} onUsedQuestion={() => setQuestion(undefined)} />}
           </div>
         </div>
       )}
       <button
-        onClick={() => setOpen((o) => !o)}
-        aria-label={open ? "Close chat" : "Chat with QikParcel"}
-        className="fixed bottom-48 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105 sm:bottom-28"
+        onClick={toggle}
+        aria-label={open ? "Close chat" : "Ask QikParcel"}
+        className={`fixed bottom-4 right-4 z-50 h-14 items-center justify-center gap-2 rounded-full bg-primary px-4 text-primary-foreground shadow-lg transition-transform hover:scale-105 ${open ? "hidden sm:flex" : "flex"}`}
       >
-        {open ? <X className="h-7 w-7" /> : <MessageCircle className="h-7 w-7" />}
+        {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+        {!open && <span className="text-sm font-semibold">Ask QikParcel</span>}
       </button>
     </>
   );
