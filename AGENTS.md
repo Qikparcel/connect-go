@@ -5,3 +5,4 @@
 - Admin access is via `user_roles` + `has_role`; the team email is auto-granted admin by a trigger on `auth.users`. Why: roles must never live in client storage or profile data.
 
 - The website chatbot streams from the `chat` edge function, which alone writes `chat_conversations` (admin read-only). Why: AI key and visitor data stay server-side.
+- Search Console verification lives in the root HTML head and the sitemap is served from public/sitemap.xml. Why: Google must fetch both directly from the published origin without client-side rendering.
