@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { FunctionsHttpError } from "@supabase/supabase-js";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FORMS, validateField, whatsappLink, type LeadType } from "./leadForms";
+import { FORMS, validateField, type LeadType } from "./leadForms";
 import { getUtm, track } from "@/lib/tracking";
 
 const Ctx = createContext<(t: LeadType) => void>(() => {});
