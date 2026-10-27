@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
-import BetaBanner from "@/components/BetaBanner";
 import HeroSection from "@/components/HeroSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import ForSendersSection from "@/components/ForSendersSection";
@@ -19,9 +18,8 @@ const Index = () => {
   useEffect(() => track("page_view", "home"), []);
   return (
     <LeadProvider>
-      <div className="min-h-screen bg-background pb-44 sm:pb-24">
+      <div className="min-h-screen bg-background">
         <Navbar />
-        <BetaBanner />
         <HeroSection />
         <HowItWorksSection />
         <ForSendersSection />
