@@ -94,29 +94,36 @@ export function LeadForm({ type, inline = false }: { type: LeadType; inline?: bo
 
   if (reference) {
     const wa = whatsappLink(type, reference, values);
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- see waOptIn state declared above
     return (
       <div className="text-center py-4">
         <CheckCircle2 className="mx-auto h-12 w-12 text-primary mb-4" />
         <DialogTitle className="text-xl mb-2">{form.thanks}</DialogTitle>
         <DialogDescription className="mb-1">Your reference number</DialogDescription>
         <p className="font-mono text-2xl font-bold text-foreground mb-6">{reference}</p>
+        <div className="mb-4 flex items-start gap-2 rounded-lg border border-border bg-muted/40 p-3 text-left">
+          <Checkbox id="wa-optin" checked={waOptIn} onCheckedChange={(c) => { setWaOptIn(c === true); if (c === true) track("cta_click", `whatsapp_optin:${reference}`); }} />
+          <Label htmlFor="wa-optin" className="text-sm font-normal leading-snug">
+            Yes, I'd like updates from QikParcel on WhatsApp (+44 7443 191370). I can opt out any time.
+          </Label>
+        </div>
         <div className="flex flex-col gap-3">
-          {type === "traveller" ? (
+          {type === "traveller" && (
             <Button variant="hero" asChild>
               <a href="https://app.qikparcel.com/" target="_blank" rel="noopener noreferrer">Continue registration</a>
             </Button>
-          ) : (
-            <Button variant="hero" asChild>
-              <a href={wa} target="_blank" rel="noopener noreferrer">
-                {type === "sender" ? "Request a Quote on WhatsApp" : "WhatsApp Business Enquiry"}
-              </a>
-            </Button>
           )}
-          {type === "traveller" && (
-            <Button variant="outline" asChild>
-              <a href={wa} target="_blank" rel="noopener noreferrer">Message us on WhatsApp</a>
-            </Button>
-          )}
+          <Button
+            variant={type === "traveller" ? "outline" : "hero"}
+            disabled={!waOptIn}
+            onClick={() => {
+              const win = window.open(wa, "_blank", "noopener,noreferrer");
+              if (!win) window.top!.location.href = wa;
+            }}
+          >
+            {type === "sender" ? "Request a Quote on WhatsApp" : type === "merchant" ? "WhatsApp Business Enquiry" : "Message us on WhatsApp"}
+          </Button>
+          {!waOptIn && <p className="text-xs text-muted-foreground">Tick the box above to continue on WhatsApp.</p>}
         </div>
       </div>
     );
