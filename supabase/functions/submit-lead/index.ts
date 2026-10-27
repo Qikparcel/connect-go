@@ -41,6 +41,27 @@ const Body = z.discriminatedUnion("type", [
     needs: z.enum(["Local", "International", "Both"]),
     when: z.enum(["Immediately", "Within 30 days", "Exploring"]),
   }),
+  // Guided website chat ("Ask QikParcel")
+  z.object({
+    type: z.literal("chat_sender"), ...common, consent: z.boolean(),
+    fullName: str(100).min(2), origin: str(60).min(2), destination: str(60).min(2),
+    readiness: z.enum(["Ready now", "Within 3 days", "Within 7 days", "Later"]),
+    parcelType: str(60).min(2), weight: z.enum([...WEIGHTS, "Not sure"]),
+  }),
+  z.object({
+    type: z.literal("chat_traveller"), ...common, consent: z.boolean(),
+    fullName: str(100).min(2), origin: str(60).min(2), destination: str(60).min(2), departureDate: date,
+    travelling: z.enum(["Within 48 hours", "Within 7 days", "Within 30 days", "Not booked yet"]),
+    spareSpace: z.enum(["Yes", "Maybe", "No"]), capacity: z.enum([...WEIGHTS, "Unsure", "None"]),
+    interested: z.enum(["Yes", "Tell me more", "Not now"]),
+  }),
+  z.object({
+    type: z.literal("chat_merchant"), ...common, consent: z.boolean(),
+    businessName: str(120).min(2), fullName: str(100).min(2), location: str(60).min(2),
+    deliverTo: z.enum(["Local", "National", "International", "Multiple destinations"]),
+    volume: z.enum(["1–10", "11–50", "51–200", "Over 200", "Not sure"]),
+    when: z.enum(["Immediately", "This month", "Just exploring"]),
+  }),
 ]);
 
 const json = (body: unknown, status = 200) =>
@@ -67,14 +88,16 @@ Deno.serve(async (req) => {
 
     // Create the contact only if new; never overwrite an existing contact's stored details
     // from an unauthenticated submission. Submitted details are kept on the lead itself.
+    const email = "email" in d ? d.email || null : null;
+    const business = "businessName" in d ? d.businessName : null;
     const { error: insErr } = await db.from("lead_contacts").upsert(
-      { phone, full_name: d.fullName, email: d.email || null, business_name: d.type === "merchant" ? d.businessName : null },
+      { phone, full_name: d.fullName, email, business_name: business },
       { onConflict: "phone", ignoreDuplicates: true },
     );
     if (insErr) throw insErr;
     const { data: contact, error: cErr } = await db.from("lead_contacts").select("id").eq("phone", phone).single();
     if (cErr) throw cErr;
-    const submitted = { submittedName: d.fullName, submittedEmail: d.email || null, submittedBusiness: d.type === "merchant" ? d.businessName : null };
+    const submitted = { submittedName: d.fullName, submittedEmail: email, submittedBusiness: business };
 
     const since = new Date(Date.now() - 3600_000).toISOString();
     const { count } = await db.from("leads").select("id", { count: "exact", head: true })
@@ -82,22 +105,41 @@ Deno.serve(async (req) => {
     if ((count ?? 0) >= 5) return json({ error: "You've sent several requests in the last hour. Please try again later or message us on WhatsApp." }, 429);
 
     let row: Record<string, unknown>;
+    let leadType: "sender" | "traveller" | "merchant";
+    let source = d.source || null;
+    const consentAt = d.consent ? new Date().toISOString() : null;
     if (d.type === "sender") {
+      leadType = "sender";
       row = { origin: d.origin, destination: d.destination, travel_date: d.sendDate || null, urgency: d.readiness, weight: d.weight,
         priority: leadPriority("sender", d.readiness), details: { ...submitted, parcelType: d.parcelType, wantsQuote: d.wantsQuote } };
     } else if (d.type === "traveller") {
+      leadType = "traveller";
       row = { origin: d.origin, destination: d.destination, travel_date: d.departureDate || null, urgency: d.travelling, weight: d.capacity,
         priority: leadPriority("traveller", d.travelling, d.capacity), details: { ...submitted, interested: d.interested } };
-    } else {
+    } else if (d.type === "merchant") {
+      leadType = "merchant";
       row = { origin: d.location, destination: d.destinations, urgency: d.when, weight: d.volume,
         priority: leadPriority("merchant", d.when), details: { ...submitted, category: d.category, needs: d.needs, contactPerson: d.fullName } };
+    } else if (d.type === "chat_sender") {
+      leadType = "sender"; source = "website_chat";
+      row = { origin: d.origin, destination: d.destination, urgency: d.readiness, weight: d.weight,
+        priority: leadPriority("sender", d.readiness), details: { ...submitted, parcelType: d.parcelType, consentTimestamp: consentAt } };
+    } else if (d.type === "chat_traveller") {
+      leadType = "traveller"; source = "website_chat";
+      const cap = d.spareSpace === "No" ? "None" : d.capacity;
+      row = { origin: d.origin, destination: d.destination, travel_date: d.departureDate || null, urgency: d.travelling, weight: cap,
+        priority: leadPriority("traveller", d.travelling, cap), details: { ...submitted, spareSpace: d.spareSpace, interested: d.interested, consentTimestamp: consentAt } };
+    } else {
+      leadType = "merchant"; source = "website_chat";
+      row = { origin: d.location, destination: d.deliverTo, urgency: d.when, weight: d.volume,
+        priority: leadPriority("merchant", d.when), details: { ...submitted, contactPerson: d.fullName, consentTimestamp: consentAt } };
     }
 
     for (let i = 0; i < 3; i++) {
       const reference = makeRef();
       const { error } = await db.from("leads").insert({
-        ...row, reference, contact_id: contact.id, lead_type: d.type, consent: true,
-        source: d.source || null, utm: d.utm ?? {},
+        ...row, reference, contact_id: contact.id, lead_type: leadType, consent: d.consent,
+        source, utm: d.utm ?? {},
       });
       if (!error) return json({ reference, priority: row.priority });
       if (error.code !== "23505") throw error;
