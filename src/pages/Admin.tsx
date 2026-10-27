@@ -39,6 +39,10 @@ function AuthForm() {
       <div className="space-y-1.5"><Label htmlFor="pw">Password</Label><Input id="pw" type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
       {msg && <p className="text-sm text-muted-foreground">{msg}</p>}
       <Button type="submit" variant="hero" className="w-full">{mode === "in" ? "Sign in" : "Create account"}</Button>
+      <Button type="button" variant="outline" className="w-full" onClick={async () => {
+        const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/admin` });
+        if (r.error) setMsg(r.error.message ?? "Google sign-in failed");
+      }}>Continue with Google</Button>
       <button type="button" className="text-sm text-primary hover:underline" onClick={() => setMode(mode === "in" ? "up" : "in")}>
         {mode === "in" ? "First time? Create an account" : "Have an account? Sign in"}
       </button>
