@@ -57,6 +57,13 @@
       "when": 1793142924515,
       "tag": "0007_team_profiles_and_booking_approval",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793144118381,
+      "tag": "0008_chat_conversation_owner_token",
+      "breakpoints": true
     }
   ]
 }

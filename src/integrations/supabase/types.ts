@@ -61,6 +61,7 @@ export type Database = {
           interest: string | null
           messages: Json
           phone: string | null
+          token_hash: string | null
           updated_at: string
         }
         Insert: {
@@ -71,6 +72,7 @@ export type Database = {
           interest?: string | null
           messages?: Json
           phone?: string | null
+          token_hash?: string | null
           updated_at?: string
         }
         Update: {
@@ -81,6 +83,7 @@ export type Database = {
           interest?: string | null
           messages?: Json
           phone?: string | null
+          token_hash?: string | null
           updated_at?: string
         }
         Relationships: []

@@ -1,4 +1,5 @@
-import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { corsHeaders as baseCors } from "npm:@supabase/supabase-js@2/cors";
+const corsHeaders = { ...baseCors, "Access-Control-Allow-Headers": `${baseCors["Access-Control-Allow-Headers"]}, x-chat-token` };
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { createOpenAI } from "npm:@ai-sdk/openai@^4";
 import { convertToModelMessages, stepCountIs, streamText, tool, type UIMessage } from "npm:ai@^7";
@@ -55,7 +56,22 @@ Deno.serve(async (req) => {
   const messages = parsed.data.messages as UIMessage[];
   if (JSON.stringify(messages).length > 200_000) return json(400, { error: "Conversation too long" });
 
+  const token = req.headers.get("x-chat-token") ?? "";
+  if (!/^[a-f0-9]{64}$/.test(token)) return json(401, { error: "Missing chat session. Please start a new chat." });
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
+  const tokenHash = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+
+  // Bind the conversation to the visitor's secret token; never touch someone else's chat.
+  const { data: existing, error: lookupErr } = await db.from("chat_conversations").select("token_hash").eq("id", id).maybeSingle();
+  if (lookupErr) { console.error("chat lookup", lookupErr); return json(500, { error: "Chat is temporarily unavailable." }); }
+  if (existing) {
+    if (existing.token_hash !== tokenHash) return json(403, { error: "This chat session has expired. Please start a new chat." });
+  } else {
+    const { error: insErr } = await db.from("chat_conversations").insert({ id, token_hash: tokenHash });
+    if (insErr) { console.error("chat create", insErr); return json(403, { error: "Please start a new chat." }); }
+  }
 
   const runIdFetch = createLovableAiGatewayRunIdFetch(getLovableAiGatewayRunId(req));
   const provider = createOpenAI({
@@ -81,10 +97,10 @@ Deno.serve(async (req) => {
           interest: z.enum(["sender", "traveller", "merchant", "other"]),
         }),
         execute: async (c) => {
-          const { error } = await db.from("chat_conversations").upsert({
-            id, full_name: c.full_name, phone: c.phone, email: c.email, interest: c.interest,
+          const { error } = await db.from("chat_conversations").update({
+            full_name: c.full_name, phone: c.phone, email: c.email, interest: c.interest,
             updated_at: new Date().toISOString(),
-          });
+          }).eq("id", id).eq("token_hash", tokenHash);
           if (error) { console.error("save_contact", error); return { saved: false }; }
           return { saved: true };
         },
@@ -116,9 +132,9 @@ Deno.serve(async (req) => {
       originalMessages: messages,
       sendReasoning: false,
       onFinish: async ({ messages: all }) => {
-        const { error } = await db.from("chat_conversations").upsert({
-          id, messages: all, updated_at: new Date().toISOString(),
-        });
+        const { error } = await db.from("chat_conversations").update({
+          messages: all, updated_at: new Date().toISOString(),
+        }).eq("id", id).eq("token_hash", tokenHash);
         if (error) console.error("save chat", error);
       },
       onError: (e) => {

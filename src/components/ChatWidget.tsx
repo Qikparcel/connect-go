@@ -16,12 +16,24 @@ import { track } from "@/lib/tracking";
 
 const ID_KEY = "qik-chat-id";
 const MSG_KEY = "qik-chat-messages";
+const TOKEN_KEY = "qik-chat-token";
 
-function loadChat(): { id: string; messages: UIMessage[] } {
-  if (typeof window === "undefined") return { id: crypto.randomUUID(), messages: [] };
+function newToken() {
+  const b = new Uint8Array(32);
+  crypto.getRandomValues(b);
+  return Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+}
+
+function loadChat(): { id: string; token: string; messages: UIMessage[] } {
+  if (typeof window === "undefined") return { id: crypto.randomUUID(), token: newToken(), messages: [] };
   let id = localStorage.getItem(ID_KEY);
-  if (!id) { id = crypto.randomUUID(); localStorage.setItem(ID_KEY, id); }
-  try { return { id, messages: JSON.parse(localStorage.getItem(MSG_KEY) || "[]") }; } catch { return { id, messages: [] }; }
+  let token = localStorage.getItem(TOKEN_KEY);
+  if (!id || !token) {
+    id = crypto.randomUUID(); token = newToken();
+    localStorage.setItem(ID_KEY, id); localStorage.setItem(TOKEN_KEY, token);
+    localStorage.removeItem(MSG_KEY);
+  }
+  try { return { id, token, messages: JSON.parse(localStorage.getItem(MSG_KEY) || "[]") }; } catch { return { id, token, messages: [] }; }
 }
 
 const FORM_LABEL: Record<LeadType, { label: string; icon: typeof Package }> = {
@@ -37,7 +49,7 @@ const STARTERS = [
 ];
 
 function ChatWindow({ initial, onReset, initialQuestion, onUsedQuestion }: {
-  initial: { id: string; messages: UIMessage[] }; onReset: () => void; initialQuestion?: string; onUsedQuestion?: () => void;
+  initial: { id: string; token: string; messages: UIMessage[] }; onReset: () => void; initialQuestion?: string; onUsedQuestion?: () => void;
 }) {
   const openLead = useOpenLead();
   const [error, setError] = useState("");
@@ -46,8 +58,9 @@ function ChatWindow({ initial, onReset, initialQuestion, onUsedQuestion }: {
     headers: {
       apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      "x-chat-token": initial.token,
     },
-  }), []);
+  }), [initial.token]);
   const { messages, sendMessage, status, stop } = useChat({
     id: initial.id,
     messages: initial.messages,
@@ -153,6 +166,7 @@ const ChatWidget = () => {
   const reset = () => {
     localStorage.removeItem(MSG_KEY);
     localStorage.removeItem(ID_KEY);
+    localStorage.removeItem(TOKEN_KEY);
     setChat(loadChat());
   };
 
