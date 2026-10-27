@@ -11,6 +11,7 @@ import MissionSection from "@/components/MissionSection";
 import FinalCTASection from "@/components/FinalCTASection";
 import Footer from "@/components/Footer";
 import BackToTop from "@/components/BackToTop";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { LeadProvider } from "@/components/leads/LeadDialog";
 import { track } from "@/lib/tracking";
 
@@ -31,6 +32,7 @@ const Index = () => {
         <FinalCTASection />
         <Footer />
         <BackToTop />
+        <WhatsAppButton />
       </div>
     </LeadProvider>
   );
