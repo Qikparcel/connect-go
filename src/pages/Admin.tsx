@@ -147,7 +147,47 @@ function Dashboard() {
           </tbody>
         </table>
       </div>
+      <ChatList />
     </div>
+  );
+}
+
+type Chat = { id: string; full_name: string | null; phone: string | null; email: string | null; interest: string | null; messages: { id: string; role: string; parts: { type: string; text?: string }[] }[]; updated_at: string };
+
+function ChatList() {
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [openId, setOpenId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.from("chat_conversations").select("*").order("updated_at", { ascending: false }).limit(200)
+      .then(({ data }) => setChats((data as unknown as Chat[]) ?? []));
+  }, []);
+  return (
+    <section className="mt-12">
+      <h2 className="text-2xl font-black text-foreground mb-4">Website chats</h2>
+      {chats.length === 0 && <p className="text-sm text-muted-foreground">No chats yet.</p>}
+      <div className="space-y-3">
+        {chats.map((c) => (
+          <div key={c.id} className="rounded-xl border border-border bg-card p-4">
+            <button className="flex w-full flex-wrap items-center gap-3 text-left" onClick={() => setOpenId(openId === c.id ? null : c.id)}>
+              <span className="font-semibold text-foreground">{c.full_name ?? "Anonymous visitor"}</span>
+              {c.interest && <Badge variant="secondary" className="capitalize">{c.interest}</Badge>}
+              {c.phone && <span className="text-sm text-muted-foreground">{c.phone}</span>}
+              {c.email && <span className="text-sm text-muted-foreground">{c.email}</span>}
+              <span className="ml-auto text-xs text-muted-foreground">{new Date(c.updated_at).toLocaleString()} · {c.messages.length} messages</span>
+            </button>
+            {openId === c.id && (
+              <div className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
+                {c.messages.map((m) => {
+                  const text = m.parts.filter((p) => p.type === "text").map((p) => p.text).join("\n");
+                  if (!text) return null;
+                  return <p key={m.id} className={m.role === "user" ? "text-foreground" : "text-muted-foreground"}><span className="font-semibold">{m.role === "user" ? "Visitor" : "Qik"}:</span> {text}</p>;
+                })}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
