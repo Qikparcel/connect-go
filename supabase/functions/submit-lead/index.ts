@@ -84,13 +84,13 @@ Deno.serve(async (req) => {
     let row: Record<string, unknown>;
     if (d.type === "sender") {
       row = { origin: d.origin, destination: d.destination, travel_date: d.sendDate || null, urgency: d.readiness, weight: d.weight,
-        priority: leadPriority("sender", d.readiness), details: { parcelType: d.parcelType, wantsQuote: d.wantsQuote } };
+        priority: leadPriority("sender", d.readiness), details: { ...submitted, parcelType: d.parcelType, wantsQuote: d.wantsQuote } };
     } else if (d.type === "traveller") {
       row = { origin: d.origin, destination: d.destination, travel_date: d.departureDate || null, urgency: d.travelling, weight: d.capacity,
-        priority: leadPriority("traveller", d.travelling, d.capacity), details: { interested: d.interested } };
+        priority: leadPriority("traveller", d.travelling, d.capacity), details: { ...submitted, interested: d.interested } };
     } else {
       row = { origin: d.location, destination: d.destinations, urgency: d.when, weight: d.volume,
-        priority: leadPriority("merchant", d.when), details: { category: d.category, needs: d.needs, contactPerson: d.fullName } };
+        priority: leadPriority("merchant", d.when), details: { ...submitted, category: d.category, needs: d.needs, contactPerson: d.fullName } };
     }
 
     for (let i = 0; i < 3; i++) {
