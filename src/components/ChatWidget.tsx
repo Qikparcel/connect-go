@@ -146,7 +146,7 @@ function ChatWindow({ initial, onReset, initialQuestion, onUsedQuestion }: {
         <PromptInput onSubmit={(msg) => send(msg.text)}>
           <PromptInputTextarea autoFocus placeholder="Ask about sending, travelling or business…" />
           <PromptInputFooter className="justify-between">
-            <button type="button" onClick={onReset} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+            <button type="button" onClick={onReset} aria-label="Start a new chat" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
               <RotateCcw className="h-3 w-3" /> New chat
             </button>
             <PromptInputSubmit status={status} onStop={stop} />
