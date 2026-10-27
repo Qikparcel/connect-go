@@ -65,11 +65,16 @@ Deno.serve(async (req) => {
 
     const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
-    const { data: contact, error: cErr } = await db.from("lead_contacts").upsert(
-      { phone, full_name: d.fullName, email: d.email || null, business_name: d.type === "merchant" ? d.businessName : null, updated_at: new Date().toISOString() },
-      { onConflict: "phone" },
-    ).select("id").single();
+    // Create the contact only if new; never overwrite an existing contact's stored details
+    // from an unauthenticated submission. Submitted details are kept on the lead itself.
+    const { error: insErr } = await db.from("lead_contacts").upsert(
+      { phone, full_name: d.fullName, email: d.email || null, business_name: d.type === "merchant" ? d.businessName : null },
+      { onConflict: "phone", ignoreDuplicates: true },
+    );
+    if (insErr) throw insErr;
+    const { data: contact, error: cErr } = await db.from("lead_contacts").select("id").eq("phone", phone).single();
     if (cErr) throw cErr;
+    const submitted = { submittedName: d.fullName, submittedEmail: d.email || null, submittedBusiness: d.type === "merchant" ? d.businessName : null };
 
     const since = new Date(Date.now() - 3600_000).toISOString();
     const { count } = await db.from("leads").select("id", { count: "exact", head: true })
