@@ -65,11 +65,16 @@ Deno.serve(async (req) => {
 
     const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
-    const { data: contact, error: cErr } = await db.from("lead_contacts").upsert(
-      { phone, full_name: d.fullName, email: d.email || null, business_name: d.type === "merchant" ? d.businessName : null, updated_at: new Date().toISOString() },
-      { onConflict: "phone" },
-    ).select("id").single();
+    // Create the contact only if new; never overwrite an existing contact's stored details
+    // from an unauthenticated submission. Submitted details are kept on the lead itself.
+    const { error: insErr } = await db.from("lead_contacts").upsert(
+      { phone, full_name: d.fullName, email: d.email || null, business_name: d.type === "merchant" ? d.businessName : null },
+      { onConflict: "phone", ignoreDuplicates: true },
+    );
+    if (insErr) throw insErr;
+    const { data: contact, error: cErr } = await db.from("lead_contacts").select("id").eq("phone", phone).single();
     if (cErr) throw cErr;
+    const submitted = { submittedName: d.fullName, submittedEmail: d.email || null, submittedBusiness: d.type === "merchant" ? d.businessName : null };
 
     const since = new Date(Date.now() - 3600_000).toISOString();
     const { count } = await db.from("leads").select("id", { count: "exact", head: true })
@@ -79,13 +84,13 @@ Deno.serve(async (req) => {
     let row: Record<string, unknown>;
     if (d.type === "sender") {
       row = { origin: d.origin, destination: d.destination, travel_date: d.sendDate || null, urgency: d.readiness, weight: d.weight,
-        priority: leadPriority("sender", d.readiness), details: { parcelType: d.parcelType, wantsQuote: d.wantsQuote } };
+        priority: leadPriority("sender", d.readiness), details: { ...submitted, parcelType: d.parcelType, wantsQuote: d.wantsQuote } };
     } else if (d.type === "traveller") {
       row = { origin: d.origin, destination: d.destination, travel_date: d.departureDate || null, urgency: d.travelling, weight: d.capacity,
-        priority: leadPriority("traveller", d.travelling, d.capacity), details: { interested: d.interested } };
+        priority: leadPriority("traveller", d.travelling, d.capacity), details: { ...submitted, interested: d.interested } };
     } else {
       row = { origin: d.location, destination: d.destinations, urgency: d.when, weight: d.volume,
-        priority: leadPriority("merchant", d.when), details: { category: d.category, needs: d.needs, contactPerson: d.fullName } };
+        priority: leadPriority("merchant", d.when), details: { ...submitted, category: d.category, needs: d.needs, contactPerson: d.fullName } };
     }
 
     for (let i = 0; i < 3; i++) {
