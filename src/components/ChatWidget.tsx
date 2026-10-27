@@ -147,7 +147,7 @@ const ChatWidget = () => {
   return (
     <>
       {open && (
-        <div className="fixed inset-x-2 bottom-2 top-16 z-[60] flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:inset-auto sm:bottom-24 sm:right-4 sm:h-[560px] sm:w-[380px]">
+        <div className="fixed inset-x-2 bottom-2 top-16 z-[60] flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:inset-auto sm:bottom-44 sm:right-4 sm:h-[min(560px,calc(100vh-13rem))] sm:w-[380px]">
           <div className="flex items-center gap-3 border-b border-border bg-secondary px-4 py-3">
             <img src={logo} alt="" className="h-7 w-auto" />
             <div className="flex-1">
