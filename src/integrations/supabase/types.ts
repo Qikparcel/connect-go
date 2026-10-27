@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          created_at: string
+          created_by: string
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          lead_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          lead_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          lead_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: true
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_conversations: {
         Row: {
           created_at: string
@@ -271,6 +309,24 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -294,6 +350,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      decide_booking: {
+        Args: { p_booking_id: string; p_status: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -301,6 +361,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      request_booking: { Args: { p_lead_id: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "user"
