@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Dedicated team sign-in page, stored team profiles, and separate admin dashboard with booking approval — awaiting confirmation whether bookings come from app.qikparcel.com or are created from website enquiries.
+- [x] Dedicated team sign-in page, stored team profiles, and separate admin dashboard with booking approval from website enquiries — signed-in creation/approval/Booked readback verified; temporary test records removed; 47 tests passed. Frontend not yet published.
 
 - [x] Submit a live Ask QikParcel sender test and verify its details in the signed-in admin dashboard; remove test enquiry afterward.
 - [x] Wire and deploy enquiry notifications from admin@qikparcel.com to admin@qikparcel.com for all enquiry forms and guided chat; live sender test saved successfully and was removed afterward.
