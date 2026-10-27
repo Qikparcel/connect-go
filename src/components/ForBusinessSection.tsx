@@ -1,3 +1,4 @@
+import { useOpenLead } from "@/components/leads/LeadDialog";
 import { motion } from "framer-motion";
 import { Package, DollarSign, RefreshCw, BarChart3, Leaf, ShoppingBag, Store, Globe, Truck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ const useCases = [
 ];
 
 const ForBusinessSection = () => {
+  const openLead = useOpenLead();
   return (
     <section id="business" className="py-24 border-t border-border/40">
       <div className="container mx-auto px-4">
@@ -114,11 +116,9 @@ const ForBusinessSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <Button variant="accent" size="lg" className="text-base px-8 py-6 rounded-lg" asChild>
-              <a href="https://app.qikparcel.com/" target="_blank" rel="noopener noreferrer">
+            <Button variant="accent" size="lg" className="text-base px-8 py-6 rounded-lg" onClick={() => openLead("merchant")}>
                 Partner With Us <ArrowRight className="ml-1 h-4 w-4" />
-              </a>
-            </Button>
+              </Button>
           </motion.div>
         </div>
       </div>

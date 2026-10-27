@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -21,9 +22,9 @@ const BetaBanner = () => {
           </span>
         </p>
         <Button variant="hero" size="sm" className="shrink-0 text-xs" asChild>
-          <a href="https://app.qikparcel.com/" target="_blank" rel="noopener noreferrer">
+          <Link to="/onboarding">
             Join the Beta <ArrowRight className="ml-1 h-3 w-3" />
-          </a>
+          </Link>
         </Button>
       </div>
     </motion.div>
