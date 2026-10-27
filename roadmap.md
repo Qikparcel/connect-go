@@ -1,7 +1,8 @@
 # Roadmap
 
 - [x] Submit a live Ask QikParcel sender test and verify its details in the signed-in admin dashboard; remove test enquiry afterward.
-- [ ] Wire enquiry emails from admin@qikparcel.com to admin@qikparcel.com; verify sending after notify.qikparcel.com DNS verification.
+- [x] Wire and deploy enquiry notifications from admin@qikparcel.com to admin@qikparcel.com for all enquiry forms and guided chat; live sender test saved successfully and was removed afterward.
+- [ ] Confirm enquiry email delivery after notify.qikparcel.com DNS verification (test send currently blocked with domain_not_verified).
 
 - [x] Clear validation + submission errors on enquiry forms
 - [x] Fix contact-overwrite security issue, then publish
