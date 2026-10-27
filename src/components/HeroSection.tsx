@@ -31,8 +31,8 @@ const HeroSection = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl sm:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-6 uppercase"
           >
-            Send parcels.{" "}
-            <span className="text-gradient-primary">Earn when you travel.</span>
+            Delivery, Reimagined.{" "}
+            <span className="text-gradient-primary">Local or Global.</span>
           </motion.h1>
 
           <motion.p
