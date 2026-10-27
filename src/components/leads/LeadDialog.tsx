@@ -25,7 +25,7 @@ export function LeadProvider({ children }: { children: ReactNode }) {
       {children}
       <Dialog open={!!type} onOpenChange={(o) => !o && setType(null)}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-          {type && <LeadForm key={type} type={type} />}
+          {type && <LeadForm key={type} type={type} onDone={() => setType(null)} />}
         </DialogContent>
       </Dialog>
     </Ctx.Provider>
@@ -35,8 +35,9 @@ export function LeadProvider({ children }: { children: ReactNode }) {
 const PlainTitle = ({ className, children }: { className?: string; children: ReactNode }) => <h2 className={`text-lg font-semibold ${className ?? ""}`}>{children}</h2>;
 const PlainDesc = ({ className, children }: { className?: string; children: ReactNode }) => <p className={`text-sm text-muted-foreground ${className ?? ""}`}>{children}</p>;
 
-export function LeadForm({ type, inline = false }: { type: LeadType; inline?: boolean }) {
+export function LeadForm({ type, inline = false, onDone }: { type: LeadType; inline?: boolean; onDone?: () => void }) {
   const form = FORMS[type];
+  const navigate = useNavigate();
   const DialogTitle = inline ? PlainTitle : DTitle;
   const DialogDescription = inline ? PlainDesc : DDesc;
   const DialogHeader = inline ? ({ children }: { children: ReactNode }) => <div className="mb-4 space-y-1.5">{children}</div> : DHeader;
@@ -94,7 +95,6 @@ export function LeadForm({ type, inline = false }: { type: LeadType; inline?: bo
   };
 
   if (reference) {
-    const wa = whatsappLink(type, reference, values);
     return (
       <div className="text-center py-4">
         <CheckCircle2 className="mx-auto h-12 w-12 text-primary mb-4" />
@@ -109,21 +109,20 @@ export function LeadForm({ type, inline = false }: { type: LeadType; inline?: bo
         </div>
         <div className="flex flex-col gap-3">
           {type === "traveller" && (
-            <Button variant="hero" asChild>
+            <Button variant="outline" asChild>
               <a href="https://app.qikparcel.com/" target="_blank" rel="noopener noreferrer">Continue registration</a>
             </Button>
           )}
           <Button
-            variant={type === "traveller" ? "outline" : "hero"}
-            disabled={!waOptIn}
+            variant="hero"
             onClick={() => {
-              const win = window.open(wa, "_blank", "noopener,noreferrer");
-              if (!win) window.top!.location.href = wa;
+              onDone?.();
+              navigate("/");
+              window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
-            {type === "sender" ? "Request a Quote on WhatsApp" : type === "merchant" ? "WhatsApp Business Enquiry" : "Message us on WhatsApp"}
+            Back to homepage
           </Button>
-          {!waOptIn && <p className="text-xs text-muted-foreground">Tick the box above to continue on WhatsApp.</p>}
         </div>
       </div>
     );
