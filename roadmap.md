@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Team login with stored team profiles and booking management — on hold until user confirms booking source with their developer.
+
 - [x] Submit a live Ask QikParcel sender test and verify its details in the signed-in admin dashboard; remove test enquiry afterward.
 - [x] Wire and deploy enquiry notifications from admin@qikparcel.com to admin@qikparcel.com for all enquiry forms and guided chat; live sender test saved successfully and was removed afterward.
 - [ ] Confirm enquiry email delivery after notify.qikparcel.com DNS verification (test send currently blocked with domain_not_verified).
