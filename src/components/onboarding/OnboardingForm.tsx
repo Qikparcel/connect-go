@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Progress } from "@/components/ui/progress";
-import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 
 import {
   buildSteps,
@@ -103,7 +103,7 @@ const OnboardingForm = () => {
       return;
     }
 
-    if (!isSupabaseConfigured || !supabase) {
+    if (!supabase) {
       toast.error("We couldn't save that", {
         description: "The form isn't connected to the database yet. Please try again shortly.",
       });
