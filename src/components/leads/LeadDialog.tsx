@@ -49,6 +49,7 @@ export function LeadForm({ type, inline = false }: { type: LeadType; inline?: bo
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
   const [reference, setReference] = useState("");
+  const [waOptIn, setWaOptIn] = useState(false);
 
   const set = (name: string, v: string) => {
     if (!started) {
@@ -94,7 +95,6 @@ export function LeadForm({ type, inline = false }: { type: LeadType; inline?: bo
 
   if (reference) {
     const wa = whatsappLink(type, reference, values);
-    // eslint-disable-next-line react-hooks/rules-of-hooks -- see waOptIn state declared above
     return (
       <div className="text-center py-4">
         <CheckCircle2 className="mx-auto h-12 w-12 text-primary mb-4" />
