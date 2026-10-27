@@ -6,3 +6,4 @@
 
 - The website chatbot streams from the `chat` edge function, which alone writes `chat_conversations` (admin read-only). Why: AI key and visitor data stay server-side.
 - Search Console verification lives in the root HTML head and the sitemap is served from public/sitemap.xml. Why: Google must fetch both directly from the published origin without client-side rendering.
+- Authentication emails use the scaffolded managed auth-email-hook and shared templates; redeploy the hook after template edits. Why: managed delivery requires this handler contract and serves deployed templates.
