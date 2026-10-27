@@ -2,11 +2,11 @@ import { motion } from "framer-motion";
 import { UserCheck, Route, Shield, FileCheck, Star } from "lucide-react";
 
 const features = [
-  { icon: UserCheck, label: "Identity-verified travelers" },
-  { icon: Shield, label: "Secure escrow-style payments" },
+  { icon: UserCheck, label: "Traveller identity checks" },
+  { icon: Shield, label: "Secure payments through the app" },
   { icon: Route, label: "In-app communication" },
   { icon: FileCheck, label: "Rating & review system" },
-  { icon: Star, label: "Delivery confirmation before payout" },
+  { icon: Star, label: "Delivery confirmation" },
 ];
 
 const TrustSection = () => {

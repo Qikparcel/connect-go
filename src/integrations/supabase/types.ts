@@ -139,6 +139,105 @@ export type Database = {
           },
         ]
       }
+      onboarding_submissions: {
+        Row: {
+          business_challenges: string[] | null
+          business_name: string | null
+          business_sells: string[] | null
+          business_sells_other: string | null
+          business_send_frequency: string | null
+          business_ships_to: string | null
+          city: string | null
+          consent_marketing: boolean
+          country: string | null
+          courier_areas: string | null
+          courier_availability: string | null
+          courier_capacity: string | null
+          courier_vehicle: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          heard_about: string
+          heard_about_other: string | null
+          id: string
+          phone: string
+          roles: string[]
+          sender_frequency: string | null
+          sender_items: string | null
+          sender_route_from: string | null
+          sender_route_to: string | null
+          source: string | null
+          traveller_frequency: string | null
+          traveller_next_trip: string | null
+          traveller_route_from: string | null
+          traveller_route_to: string | null
+        }
+        Insert: {
+          business_challenges?: string[] | null
+          business_name?: string | null
+          business_sells?: string[] | null
+          business_sells_other?: string | null
+          business_send_frequency?: string | null
+          business_ships_to?: string | null
+          city?: string | null
+          consent_marketing?: boolean
+          country?: string | null
+          courier_areas?: string | null
+          courier_availability?: string | null
+          courier_capacity?: string | null
+          courier_vehicle?: string | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          heard_about: string
+          heard_about_other?: string | null
+          id?: string
+          phone: string
+          roles: string[]
+          sender_frequency?: string | null
+          sender_items?: string | null
+          sender_route_from?: string | null
+          sender_route_to?: string | null
+          source?: string | null
+          traveller_frequency?: string | null
+          traveller_next_trip?: string | null
+          traveller_route_from?: string | null
+          traveller_route_to?: string | null
+        }
+        Update: {
+          business_challenges?: string[] | null
+          business_name?: string | null
+          business_sells?: string[] | null
+          business_sells_other?: string | null
+          business_send_frequency?: string | null
+          business_ships_to?: string | null
+          city?: string | null
+          consent_marketing?: boolean
+          country?: string | null
+          courier_areas?: string | null
+          courier_availability?: string | null
+          courier_capacity?: string | null
+          courier_vehicle?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          heard_about?: string
+          heard_about_other?: string | null
+          id?: string
+          phone?: string
+          roles?: string[]
+          sender_frequency?: string | null
+          sender_items?: string | null
+          sender_route_from?: string | null
+          sender_route_to?: string | null
+          source?: string | null
+          traveller_frequency?: string | null
+          traveller_next_trip?: string | null
+          traveller_route_from?: string | null
+          traveller_route_to?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
