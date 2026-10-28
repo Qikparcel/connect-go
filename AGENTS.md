@@ -11,3 +11,4 @@
 - Team authentication is shared by the dedicated sign-in page and protected admin dashboard; validate users with getUser and roles with has_role. Why: navigation must not grant permissions.
 - Website enquiry bookings are separate records, created and decided only through admin-checked database RPCs with atomic pending-only decisions; approval also marks the lead Booked. Why: decisions are auditable and cannot be overwritten by concurrent clients.
 - Profiles store user-facing team names only and never roles. Why: self-edited profile data must not grant privileges.
+- Website policies and chatbot policy facts share supabase/functions/_shared/policies.ts; redeploy chat after edits. Why: visitors and the assistant must receive the same approved statements.
