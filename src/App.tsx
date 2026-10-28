@@ -25,6 +25,8 @@ const App = () => (
           <Route path="/team/sign-in" element={<TeamSignIn />} />
           <Route path="/privacy" element={<LegalPage page="privacy" />} />
           <Route path="/terms" element={<LegalPage page="terms" />} />
+          <Route path="/cancellation" element={<LegalPage page="cancellation" />} />
+          <Route path="/faq" element={<LegalPage page="faq" />} />
           <Route path="/prohibited-items" element={<LegalPage page="prohibited-items" />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
