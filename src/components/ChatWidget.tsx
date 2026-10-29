@@ -110,7 +110,8 @@ function ChatWindow({ initial, onReset, initialQuestion, onUsedQuestion }: {
                 {m.parts.map((p, i) => {
                   if (p.type === "text") return <MessageResponse key={i}>{p.text}</MessageResponse>;
                   if (p.type === "tool-open_form" && p.state === "output-available") {
-                    const t = (p.output as { type: LeadType }).type;
+                    const t = (p.output as { type?: LeadType }).type;
+                    if (!t || !(t in FORM_LABEL)) return null;
                     const { label, icon: Icon } = FORM_LABEL[t];
                     return <Button key={i} variant="hero" size="sm" className="my-1 w-fit" onClick={() => openLead(t)}><Icon className="h-4 w-4" /> {label}</Button>;
                   }
@@ -124,7 +125,7 @@ function ChatWindow({ initial, onReset, initialQuestion, onUsedQuestion }: {
                   if (p.type === "tool-save_contact") {
                     return (
                       <Tool key={i} defaultOpen={false}>
-                        <ToolHeader type={p.type} state={p.state} title="Saved your contact details" />
+                        <ToolHeader type={p.type} state={p.state} title={(p.output as { saved?: boolean } | undefined)?.saved === true ? "Saved your contact details" : "Contact details"} />
                         <ToolContent>
                           <ToolInput input={p.input} />
                           <ToolOutput output={p.output} errorText={p.errorText} />

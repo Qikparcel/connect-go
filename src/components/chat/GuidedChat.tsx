@@ -33,7 +33,7 @@ export default function GuidedChat({ onAskAi }: { onAskAi: (question?: string) =
   const [text, setText] = useState("");
   const [err, setErr] = useState("");
   const [saving, setSaving] = useState(false);
-  const [result, setResult] = useState<{ ref: string; msg: string } | null>(null);
+  const [result, setResult] = useState<{ ref: string; msg: string; eligibility: string } | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   const steps = role ? activeSteps(role, answers) : [];
@@ -64,7 +64,7 @@ export default function GuidedChat({ onAskAi }: { onAskAi: (question?: string) =
     }
     track("lead_submitted", role);
     if (data.priority === "HOT") track("hot_lead_created", role);
-    setResult({ ref: data.reference, msg: confirmation(role, all, data.reference) });
+    setResult({ ref: data.reference, msg: confirmation(role, all, data.reference), eligibility: data.eligibility?.reason ?? "Eligibility needs human review. This is an enquiry, not a booking." });
     setView("done");
   };
 
@@ -134,7 +134,7 @@ export default function GuidedChat({ onAskAi }: { onAskAi: (question?: string) =
         {view === "team" && (
           <>
             <Me>Talk to our team</Me>
-            <Bot>You can contact QikParcel on WhatsApp. Our team will respond as soon as possible.</Bot>
+            <Bot>You can contact QikParcel on WhatsApp. Response times depend on team availability.</Bot>
             <div className="flex flex-wrap gap-2">
               <Button variant="hero" size="sm" asChild>
                 <a href={WA} target="_blank" rel="noopener noreferrer" onClick={() => track("whatsapp_clicked", "team")}><MessageCircle className="h-4 w-4" /> Chat on WhatsApp</a>
@@ -190,19 +190,17 @@ export default function GuidedChat({ onAskAi }: { onAskAi: (question?: string) =
         {view === "done" && result && role && (
           <>
             <Bot>{result.msg}</Bot>
+            <Bot>{result.eligibility} This is not a confirmed booking.</Bot>
             <div className="flex flex-col gap-2">
               {role === "sender" && (
                 <>
-                  <Button variant="hero" size="sm" className="justify-start" asChild>
-                    <a href={APP_URL} target="_blank" rel="noopener noreferrer" onClick={() => track("booking_clicked", "chat")}><ExternalLink className="h-4 w-4" /> Continue to Booking</a>
-                  </Button>
                   <Button variant="outline" size="sm" className="justify-start" onClick={() => openLead("sender")}><Package className="h-4 w-4" /> Request a Quote</Button>
                 </>
               )}
               {role === "traveller" && (
                 <>
                   <Button variant="hero" size="sm" className="justify-start" asChild>
-                    <a href={APP_URL} target="_blank" rel="noopener noreferrer" onClick={() => track("traveller_registration_clicked", "chat")}><ExternalLink className="h-4 w-4" /> Complete Traveller Registration</a>
+                    <a href={WA} target="_blank" rel="noopener noreferrer" onClick={() => track("whatsapp_clicked", "verification_guidance")}><ExternalLink className="h-4 w-4" /> Ask About Secure Registration</a>
                   </Button>
                   <Button variant="outline" size="sm" className="justify-start" onClick={() => onAskAi("How does traveller verification work?")}><HelpCircle className="h-4 w-4" /> Learn About Verification</Button>
                 </>

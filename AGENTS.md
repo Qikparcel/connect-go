@@ -12,3 +12,4 @@
 - Website enquiry bookings are separate records, created and decided only through admin-checked database RPCs with atomic pending-only decisions; approval also marks the lead Booked. Why: decisions are auditable and cannot be overwritten by concurrent clients.
 - Profiles store user-facing team names only and never roles. Why: self-edited profile data must not grant privileges.
 - Website policies and chatbot policy facts share supabase/functions/_shared/policies.ts; redeploy chat after edits. Why: visitors and the assistant must receive the same approved statements.
+- Chat safety is fail-closed in _shared/chat-safety.ts and submit-lead; chat trusts only server-saved history, has no financial/booking/identity tools, and uses forms for consented lead capture. Why: model text and browser tool results cannot authorise actions.

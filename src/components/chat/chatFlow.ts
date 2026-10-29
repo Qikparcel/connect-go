@@ -20,7 +20,7 @@ export const FLOWS: Record<Role, Step[]> = {
   sender: [
     { key: "origin", ask: "Great! Where are you sending your parcel from?", options: CITIES },
     { key: "destination", ask: "Where is it going?", options: CITIES },
-    { key: "readiness", ask: "When do you want to send it?", options: ["Ready now", "Within 3 days", "Within 7 days", "Later"] },
+    { key: "readiness", ask: "When do you want to send it?", options: ["Ready now", "Within 3 days", "Within 7 days", "Within 30 days", "Later"] },
     { key: "parcelType", ask: "What are you sending?", options: ["Documents", "Clothing", "Gifts", "Other"] },
     { key: "weight", ask: "Approximately how much does it weigh?", options: [...WEIGHTS, "Not sure"] },
     { key: "fullName", ask: "Perfect. What's your name?", input: "text" },
