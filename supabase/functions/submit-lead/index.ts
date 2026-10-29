@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
     const phone = normalizePhone(d.phone);
     if (!phone) return json({ error: "Please enter a valid WhatsApp number with country code." }, 400);
     // Contact limits are atomic across all form variants/quotes and checked before writes/email.
-    const contactLimited = await limitTraffic(req, "lead", corsHeaders, { contact: phone });
+    const contactLimited = await limitTraffic(req, "lead", corsHeaders, { contact: phone, contactOnly: true });
     if (contactLimited) return contactLimited;
 
     const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);

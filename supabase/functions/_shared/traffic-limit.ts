@@ -9,15 +9,15 @@ export async function hashIdentifier(value: string): Promise<string> {
   return Array.from(new Uint8Array(bytes), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export async function limitTraffic(req: Request, endpoint: TrafficEndpoint, cors: Record<string, string>, identifiers: { session?: string; contact?: string } = {}): Promise<Response | null> {
+export async function limitTraffic(req: Request, endpoint: TrafficEndpoint, cors: Record<string, string>, identifiers: { session?: string; contact?: string; contactOnly?: boolean } = {}): Promise<Response | null> {
   try {
     const url = Deno.env.get("SUPABASE_URL"), key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!url || !key) throw new Error("Traffic protection unavailable");
     const db = createClient(url, key);
-    const scopes: Record<string, string> = { global: "all" };
+    const scopes: Record<string, string> = identifiers.contactOnly ? {} : { global: "all" };
     // Only a server-validated account ID counts as an account; never a body user ID.
     const bearer = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-    if (bearer && bearer !== Deno.env.get("SUPABASE_ANON_KEY") && !bearer.startsWith("sb_publishable_")) {
+    if (!identifiers.contactOnly && bearer && bearer !== Deno.env.get("SUPABASE_ANON_KEY") && !bearer.startsWith("sb_publishable_")) {
       const { data } = await db.auth.getUser(bearer);
       if (data.user) scopes.account = data.user.id;
     }
@@ -26,7 +26,7 @@ export async function limitTraffic(req: Request, endpoint: TrafficEndpoint, cors
     // Advisory only: header authenticity is not established for every gateway path.
     // Always enforce the global bucket regardless of these caller-influenced values.
     const network = req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
-    if (network && network.length <= 100) scopes.network = network;
+    if (!identifiers.contactOnly && network && network.length <= 100) scopes.network = network;
     const rules = TRAFFIC_DEFAULTS[endpoint] as Record<string, readonly [number, number]>;
     const buckets = await Promise.all(Object.entries(scopes).filter(([scope]) => rules[scope]).map(async ([scope, identity]) => {
       const [limit, window] = rules[scope];
