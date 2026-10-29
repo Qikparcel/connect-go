@@ -25,7 +25,7 @@ export const DOCS: Record<DocKey, Doc> = {
       { h: "Can I cancel a delivery?", p: ["Yes. Before pickup you receive a full refund. After pickup, refunds depend on the delivery stage and costs already incurred. See our Cancellation Policy."] },
       { h: "Who can become a traveller?", list: ["Anyone aged 18 or over", "With valid ID", "Who passes verification checks", "Who is already travelling (walking, driving, cycling or flying)"], p: ["Travellers are not employees; they are independent individuals using the platform."] },
       { h: "How do travellers earn money?", p: ["By carrying parcels along routes they are already taking. No shifts, quotas or fixed hours. After delivery is completed and confirmation is logged, payment is released weekly."] },
-      { h: "Do travellers need special insurance?", p: ["No additional insurance is required to join. Travellers must act responsibly and comply with platform rules and local laws."] },
+      { h: "Do travellers need special insurance?", p: ["Travellers are solely responsible for compliance with applicable insurance and regulatory obligations in the jurisdictions in which they operate. See our Terms and Conditions."] },
       { h: "What if a sender gives a traveller a prohibited item?", p: ["The traveller must refuse pickup and report it immediately. Travellers are not penalised for refusing unsafe or illegal items."] },
       { h: "How much does QikParcel cost?", p: ["Pricing is based on distance, parcel size, route demand and delivery urgency. You see the full price before confirming."] },
       { h: "How are payments handled?", p: ["Sender payments are held in escrow and only released once delivery is confirmed. After successful delivery and confirmation, payment is released to the traveller's account."] },
@@ -79,6 +79,16 @@ export const DOCS: Record<DocKey, Doc> = {
     updated: UPDATED,
     intro: "These Terms and Conditions of QikParcel OÜ govern your access to and use of the QikParcel website, apps and related services. By using the platform you agree to them; if you do not agree, please do not use it.",
     sections: [
+      { h: "Agreement for users (senders and recipients)", p: [
+        "By creating an account or booking a delivery on QikParcel, you confirm that you have read, understood, and agree to the QikParcel Terms & Conditions, Privacy Policy, and Prohibited Items Policy.",
+        "You acknowledge that QikParcel operates solely as a digital marketplace and technology platform that facilitates connections between users and independent couriers. QikParcel does not provide delivery, transport, or logistics services and is not a carrier.",
+        "All deliveries are subject to availability, verification, compliance checks, and applicable UK, EU, and international laws.",
+      ] },
+      { h: "Agreement for couriers and travellers", p: [
+        "By registering as a courier on QikParcel, you confirm that you have read, understood, and agree to the Courier Terms & Conditions, Privacy Policy, and Safety & Prohibited Items Policy.",
+        "You acknowledge and agree that you act as an independent contractor operating your own delivery activity and not as an employee, worker, agent, or representative of QikParcel.",
+        "You retain full discretion over whether, when, and how you accept delivery requests and are solely responsible for compliance with applicable laws, taxes, insurance, and regulatory obligations in the jurisdictions in which you operate.",
+      ] },
       { h: "Platform role", list: [
         "QikParcel is a technology platform that connects Senders and Couriers. QikParcel does not take possession of, store, package, transport or deliver parcels.",
         "Couriers act as independent individuals; nothing creates employment, agency or partnership with QikParcel.",

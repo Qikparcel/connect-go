@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Add uploaded sender/recipient and courier/traveller agreement statements to the Terms page and chatbot facts; align FAQ insurance guidance; Terms preview and deployed chatbot answer verified. Website changes await publication.
+
 - [x] Dedicated team sign-in page, stored team profiles, and separate admin dashboard with booking approval from website enquiries — signed-in creation/approval/Booked readback verified; temporary test records removed; 47 tests passed. Frontend not yet published.
 
 - [x] Submit a live Ask QikParcel sender test and verify its details in the signed-in admin dashboard; remove test enquiry afterward.
