@@ -13,3 +13,4 @@
 - Profiles store user-facing team names only and never roles. Why: self-edited profile data must not grant privileges.
 - Website policies and chatbot policy facts share supabase/functions/_shared/policies.ts; redeploy chat after edits. Why: visitors and the assistant must receive the same approved statements.
 - Chat safety is fail-closed in _shared/chat-safety.ts and submit-lead; chat trusts only server-saved history, has no financial/booking/identity tools, and uses forms for consented lead capture. Why: model text and browser tool results cannot authorise actions.
+- Costly public requests use shared durable, atomic service-only traffic counters before model calls, lead writes or email rendering; global caps always apply and unverified IP/session/contact hints are supplemental only. Why: browser identifiers and forwarding headers can change, and per-instance memory counters race or reset.
