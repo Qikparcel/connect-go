@@ -4,7 +4,7 @@
 - [x] Run critical pre-launch acceptance tests; report in docs/chatbot-acceptance.md. Live privacy, customs, payment claims, ownership, anonymous access, saved enquiry readback and human handoff verified; temporary records removed.
 - [ ] Enable safe booking handoff/approval: blocked until approved secure verification and operational eligibility workflow are connected; booking creation, approval and direct Booked updates are currently database-blocked.
 - [ ] Complete signed-in admin acceptance: session minting failed to match requesting user; requires owner preview sign-in or authorised account selection.
-- [ ] Rate limiting: owner declined the custom approach; blocked until a standard limiter is available or owner authorises a custom one.
+- [ ] Implement owner-authorised configurable server-side traffic limiting for chat, leads/quotes and costly/sensitive endpoints; verify provider protections, burst/repeated/shared-network behaviour and costs.
 
 - [x] Add uploaded sender/recipient and courier/traveller agreement statements to the Terms page and chatbot facts; align FAQ insurance guidance; Terms preview and deployed chatbot answer verified. Website changes await publication.
 
