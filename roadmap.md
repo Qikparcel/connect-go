@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Enforce the owner’s chatbot operating rules and qualified-lead/booking handoff using existing services; test and deploy server safeguards.
+- [ ] Rate limiting: await owner approval of an ad-hoc approach because no standard backend limiter is available.
+
 - [x] Add uploaded sender/recipient and courier/traveller agreement statements to the Terms page and chatbot facts; align FAQ insurance guidance; Terms preview and deployed chatbot answer verified. Website changes await publication.
 
 - [x] Dedicated team sign-in page, stored team profiles, and separate admin dashboard with booking approval from website enquiries — signed-in creation/approval/Booked readback verified; temporary test records removed; 47 tests passed. Frontend not yet published.
