@@ -10,11 +10,13 @@ import {
   withLovableAiGatewayRunIdHeader,
 } from "../_shared/run-id.ts";
 import { policiesAsText, SUPPORT_EMAIL } from "../_shared/policies.ts";
+import { CHAT_OPERATING_RULES, containsSensitiveData, needsHuman } from "../_shared/chat-safety.ts";
 
 const MODEL = "openai/gpt-6-astra";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1";
 
 const INSTRUCTIONS = `You are Qik, the assistant on the QikParcel website (www.qikparcel.com).
+${CHAT_OPERATING_RULES}
 
 STRICT FACTS RULE (most important, overrides everything else):
 - Only state facts that appear in the WEBSITE FACTS below. Do not invent, assume, estimate or extrapolate anything.
@@ -34,13 +36,16 @@ Never ask for passports, ID documents, bank or payment details.
 
 Your role: answer concisely (2–4 short sentences, plain UK English, few emojis).
 - If they want to send, travel or get business delivery, call open_form with the matching type, and remind them they can tap "Back to enquiry" to continue.
-- Follow-up: if the visitor volunteers their name and phone, call save_contact so the team can follow up, and tell them the team will be in touch (do not promise a time). Never invent contact details.
+- Follow-up: use open_form to collect necessary contact details and explicit service-contact consent. Never infer permission or save details from free chat.
 - If they ask for a human, are frustrated, report a problem with a delivery, or ask something not covered above, call whatsapp_handoff with a short factual summary.
 Don't use the tools more than needed.`;
 
 const Body = z.object({
   id: z.string().uuid(),
-  messages: z.array(z.any()).min(1).max(80),
+  messages: z.array(z.object({
+    id: z.string().min(1).max(100), role: z.enum(["user", "assistant"]),
+    parts: z.array(z.object({ type: z.string().max(100), text: z.string().max(10000).optional() }).passthrough()).max(100),
+  })).min(1).max(80),
 });
 
 const json = (status: number, body: unknown) =>
@@ -61,8 +66,13 @@ Deno.serve(async (req) => {
   }
   if (!parsed.success) return json(400, { error: "Invalid request" });
   const { id } = parsed.data;
-  const messages = parsed.data.messages as UIMessage[];
-  if (JSON.stringify(messages).length > 200_000) return json(400, { error: "Conversation too long" });
+  const incoming = parsed.data.messages;
+  if (JSON.stringify(incoming).length > 200_000) return json(400, { error: "Conversation too long" });
+  const latest = incoming.at(-1);
+  if (!latest || latest.role !== "user" || latest.parts.some((p) => p.type !== "text" || typeof p.text !== "string")) return json(400, { error: "Send a text message only. Do not upload identity documents here." });
+  const text = latest.parts.map((p) => p.text ?? "").join("\n");
+  if (!text.trim()) return json(400, { error: "Please enter a message." });
+  if (containsSensitiveData(text)) return json(400, { error: "Please do not share cards, passwords or identity documents here. Remove those details; contact https://wa.me/447443191370 for secure verification guidance." });
 
   const token = req.headers.get("x-chat-token") ?? "";
   if (!/^[a-f0-9]{64}$/.test(token)) return json(401, { error: "Missing chat session. Please start a new chat." });
@@ -72,7 +82,7 @@ Deno.serve(async (req) => {
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
   // Bind the conversation to the visitor's secret token; never touch someone else's chat.
-  const { data: existing, error: lookupErr } = await db.from("chat_conversations").select("token_hash").eq("id", id).maybeSingle();
+  const { data: existing, error: lookupErr } = await db.from("chat_conversations").select("token_hash,messages").eq("id", id).maybeSingle();
   if (lookupErr) { console.error("chat lookup", lookupErr); return json(500, { error: "Chat is temporarily unavailable." }); }
   if (existing) {
     if (existing.token_hash !== tokenHash) return json(403, { error: "This chat session has expired. Please start a new chat." });
@@ -80,6 +90,12 @@ Deno.serve(async (req) => {
     const { error: insErr } = await db.from("chat_conversations").insert({ id, token_hash: tokenHash });
     if (insErr) { console.error("chat create", insErr); return json(403, { error: "Please start a new chat." }); }
   }
+
+  // Never trust browser-supplied assistant messages or tool results.
+  const history = (existing?.messages ?? []) as UIMessage[];
+  const messages: UIMessage[] = [...history, { id: latest.id, role: "user", parts: [{ type: "text", text }] }];
+  if (messages.length > 80) return json(400, { error: "Please start a new chat, or contact our team on https://wa.me/447443191370." });
+  const escalate = needsHuman(text);
 
   const runIdFetch = createLovableAiGatewayRunIdFetch(getLovableAiGatewayRunId(req));
   const provider = createOpenAI({
@@ -92,36 +108,30 @@ Deno.serve(async (req) => {
   const result = streamText({
     model: provider.responses(MODEL),
     instructions: INSTRUCTIONS,
+    prepareStep: ({ stepNumber }) => ({
+      toolChoice: escalate && stepNumber === 0 ? { type: "tool" as const, toolName: "whatsapp_handoff" } : "auto" as const,
+      ...(escalate && stepNumber > 0 ? { activeTools: [] } : {}),
+    }),
     messages: await convertToModelMessages(messages),
     abortSignal: req.signal,
     stopWhen: stepCountIs(4),
     tools: {
-      save_contact: tool({
-        description: "Save the visitor's name and phone so the QikParcel team can follow up.",
-        inputSchema: z.object({
-          full_name: z.string().min(2).max(100),
-          phone: z.string().min(6).max(30),
-          email: z.string().email().max(200).nullable(),
-          interest: z.enum(["sender", "traveller", "merchant", "other"]),
-        }),
-        execute: async (c) => {
-          const { error } = await db.from("chat_conversations").update({
-            full_name: c.full_name, phone: c.phone, email: c.email, interest: c.interest,
-            updated_at: new Date().toISOString(),
-          }).eq("id", id).eq("token_hash", tokenHash);
-          if (error) { console.error("save_contact", error); return { saved: false }; }
-          return { saved: true };
-        },
-      }),
       open_form: tool({
         description: "Show the visitor a button to open the full enquiry form.",
         inputSchema: z.object({ type: z.enum(["sender", "traveller", "merchant"]) }),
-        execute: async ({ type }) => ({ type }),
+        execute: async ({ type }) => {
+          if (escalate) return { blocked: true, supportUrl: "https://wa.me/447443191370" };
+          await db.from("lead_events").insert({ event: "role_selected", label: type, utm: {} });
+          return { type, enquiryOnly: true };
+        },
       }),
       whatsapp_handoff: tool({
         description: "Offer the visitor a button to continue with a human on WhatsApp.",
         inputSchema: z.object({ summary: z.string().max(300) }),
-        execute: async ({ summary }) => ({ summary }),
+        execute: async () => {
+          await db.from("lead_events").insert({ event: "human_escalation", label: "chat", utm: {} });
+          return { summary: "Please help me with my QikParcel enquiry.", supportUrl: "https://wa.me/447443191370" };
+        },
       }),
     },
     providerOptions: {

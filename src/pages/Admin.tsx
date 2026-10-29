@@ -11,12 +11,12 @@ import { useTeamAuth } from "@/hooks/use-team-auth";
 import Bookings from "@/components/admin/Bookings";
 import TeamProfile from "@/components/admin/TeamProfile";
 
-const STATUSES = ["New", "Contacted", "Qualified", "Matched", "Booked", "Lost"];
+const STATUSES = ["New", "Contacted", "Qualified", "Matched", "Lost"];
 
 type Lead = {
   id: string; reference: string; lead_type: string; origin: string | null; destination: string | null;
   travel_date: string | null; urgency: string | null; weight: string | null; priority: string; status: string;
-  owner: string | null; created_at: string; details: Record<string, string>;
+  owner: string | null; created_at: string; details: Record<string, unknown>;
   lead_contacts: { full_name: string; phone: string; email: string | null; business_name: string | null } | null;
 };
 
@@ -76,6 +76,7 @@ function Dashboard({ userId }: { userId: string }) {
       <TabsContent value="bookings"><Bookings revision={revision} onDecision={() => setRevision(v => v + 1)} /></TabsContent>
       <TabsContent value="profile"><TeamProfile userId={userId} /></TabsContent>
       <TabsContent value="enquiries" className="pt-6">
+      <p className="mb-4 text-sm text-muted-foreground">Enquiries remain available. Booking creation and approval are paused until secure verification and operational eligibility checks are connected.</p>
       {error && <p role="alert" className="mb-4 text-sm text-destructive">{error}</p>}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-8">
         {stats.map(([label, n]) => (
@@ -117,14 +118,14 @@ function Dashboard({ userId }: { userId: string }) {
                 </td>
                 <td className="p-3"><Input className="h-8 w-28" defaultValue={l.owner ?? ""} maxLength={60} onBlur={(e) => e.target.value !== (l.owner ?? "") && update(l.id, { owner: e.target.value || null })} /></td>
                 <td className="p-3">
-                  <Button size="sm" variant="outline" className="mb-2" disabled={busy === l.id || bookingLeads.includes(l.id)} onClick={async () => {
+                  <Button size="sm" variant="outline" className="mb-2" disabled title="Secure verification and operational checks are required" onClick={async () => {
                     setBusy(l.id); setError("");
                     const { error } = await supabase.rpc("request_booking", { p_lead_id: l.id });
                     setBusy(null);
                     if (error) { setError(error.message); return; }
                     setRevision(v => v + 1); setTab("bookings");
                   }}>{bookingLeads.includes(l.id) ? "Booking requested" : busy === l.id ? "Creating…" : "Request booking"}</Button>
-                  {l.lead_contacts?.phone && (
+                  {l.lead_contacts?.phone && l.details.serviceContactConsent === true && (
                     <Button size="sm" variant="outline" asChild>
                       <a href={`https://wa.me/${l.lead_contacts.phone.replace("+", "")}?text=${encodeURIComponent(`Hi ${l.lead_contacts.full_name}, this is QikParcel following up on ${l.reference}.`)}`} target="_blank" rel="noopener noreferrer">
                         <MessageCircle className="h-4 w-4" />

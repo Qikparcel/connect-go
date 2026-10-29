@@ -4,12 +4,16 @@ import { z } from "npm:zod@3";
 import { leadPriority, normalizePhone } from "../_shared/priority.ts";
 import { sendTemplateEmail } from "../_shared/transactional-email-templates/send-email.ts";
 import { ENQUIRY_RECIPIENT } from "../_shared/enquiry-email-config.ts";
+import { screenEnquiry } from "../_shared/chat-safety.ts";
 
 const CITIES = ["London", "Harare", "Johannesburg", "Other"] as const;
 const WEIGHTS = ["Under 1kg", "1–5kg", "5–10kg", "Over 10kg"] as const;
 const str = (max: number) => z.string().trim().max(max);
 const optEmail = z.union([z.literal(""), z.string().trim().email().max(255)]).optional();
-const date = z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).optional();
+const date = z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((v) => {
+  const parsed = new Date(`${v}T00:00:00Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === v;
+}, "Please enter a real date.")]).optional();
 
 const common = {
   phone: str(30).min(6),
@@ -24,7 +28,7 @@ const Body = z.discriminatedUnion("type", [
     type: z.literal("sender"), ...common,
     fullName: str(100).min(2), email: optEmail,
     origin: z.enum(CITIES), destination: z.enum(CITIES),
-    readiness: z.enum(["Now", "Within 7 days", "Within 30 days", "Just exploring"]),
+    readiness: z.enum(["Now", "Within 3 days", "Within 7 days", "Within 30 days", "Just exploring"]),
     sendDate: date, parcelType: z.enum(["Documents", "Clothing", "Gifts", "Other"]),
     weight: z.enum(WEIGHTS), wantsQuote: z.enum(["Yes", "No"]),
   }),
@@ -47,7 +51,7 @@ const Body = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("chat_sender"), ...common, consent: z.boolean(),
     fullName: str(100).min(2), origin: str(60).min(2), destination: str(60).min(2),
-    readiness: z.enum(["Ready now", "Within 3 days", "Within 7 days", "Later"]),
+    readiness: z.enum(["Ready now", "Within 3 days", "Within 7 days", "Within 30 days", "Later"]),
     parcelType: str(60).min(2), weight: z.enum([...WEIGHTS, "Not sure"]),
   }),
   z.object({
@@ -87,6 +91,11 @@ Deno.serve(async (req) => {
     if (!phone) return json({ error: "Please enter a valid WhatsApp number with country code." }, 400);
 
     const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const eligibility = screenEnquiry(
+      "origin" in d ? d.origin : d.location,
+      "destination" in d ? d.destination : "destinations" in d ? d.destinations : d.deliverTo,
+      "parcelType" in d ? d.parcelType : "category" in d ? d.category : "Unknown",
+    );
 
     // Create the contact only if new; never overwrite an existing contact's stored details
     // from an unauthenticated submission. Submitted details are kept on the lead itself.
@@ -128,7 +137,7 @@ Deno.serve(async (req) => {
         priority: leadPriority("sender", d.readiness), details: { ...submitted, parcelType: d.parcelType, consentTimestamp: consentAt } };
     } else if (d.type === "chat_traveller") {
       leadType = "traveller"; source = "website_chat";
-      const cap = d.spareSpace === "No" ? "None" : d.capacity;
+      const cap = d.spareSpace === "Yes" ? d.capacity : d.spareSpace === "No" ? "None" : "Unsure";
       row = { origin: d.origin, destination: d.destination, travel_date: d.departureDate || null, urgency: d.travelling, weight: cap,
         priority: leadPriority("traveller", d.travelling, cap), details: { ...submitted, spareSpace: d.spareSpace, interested: d.interested, consentTimestamp: consentAt } };
     } else {
@@ -137,6 +146,7 @@ Deno.serve(async (req) => {
         priority: leadPriority("merchant", d.when), details: { ...submitted, contactPerson: d.fullName, consentTimestamp: consentAt } };
     }
 
+    row.details = { ...(row.details as Record<string, unknown>), eligibility, serviceContactConsent: d.consent, consentTimestamp: consentAt, marketingConsent: false };
     for (let i = 0; i < 3; i++) {
       const reference = makeRef();
       const { data: lead, error } = await db.from("leads").insert({
@@ -166,7 +176,14 @@ Deno.serve(async (req) => {
             code: error && typeof error === "object" && "code" in error ? error.code : "email_error",
           });
         }
-        return json({ reference, priority: row.priority, notification });
+        const audit = await db.from("lead_events").insert([
+          { event: "lead_submitted", label: leadType, utm: {} },
+          { event: "contact_consent", label: d.consent ? "service_yes_marketing_no" : "service_no_marketing_no", utm: {} },
+          { event: "lead_priority", label: row.priority, utm: {} },
+          ...(eligibility.status !== "documents_pilot" ? [{ event: "human_escalation", label: eligibility.status, utm: {} }] : []),
+        ]);
+        if (audit.error) console.error("lead audit failed", { code: audit.error.code });
+        return json({ reference, priority: row.priority, notification, eligibility });
       }
       if (!error || error.code !== "23505") throw error ?? new Error("Lead was not returned after saving");
     }

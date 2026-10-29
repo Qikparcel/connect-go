@@ -64,6 +64,13 @@
       "when": 1793144118381,
       "tag": "0008_chat_conversation_owner_token",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793233297101,
+      "tag": "0009_chat_safety_audit_and_booking_gate",
+      "breakpoints": true
     }
   ]
 }
