@@ -22,6 +22,13 @@ export function validLimit(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 1 && value <= 100000 ? value : fallback;
 }
 
+// A window longer than a day is rejected the same way the dashboard and the database
+// reject it, so a bad row can never stretch a limit window out to nothing.
+export const MAX_WINDOW_SECONDS = 86400;
+export function validWindow(value: unknown, fallback: number): number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 1 && value <= MAX_WINDOW_SECONDS ? value : fallback;
+}
+
 // Which ceiling actually applies: the owner's saved value first, then the server
 // environment override, then the code default. A broken saved row never removes a limit.
 export function resolveLimit(
@@ -31,7 +38,7 @@ export function resolveLimit(
 ): [number, number] {
   const fallback: [number, number] = [configuredLimit(env.count, defaults[0]), configuredLimit(env.seconds, defaults[1])];
   if (!saved) return fallback;
-  return [validLimit(saved.max_count, fallback[0]), validLimit(saved.window_seconds, fallback[1])];
+  return [validLimit(saved.max_count, fallback[0]), validWindow(saved.window_seconds, fallback[1])];
 }
 
 export function retryMessage(seconds: number): string {
