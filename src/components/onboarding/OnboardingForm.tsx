@@ -111,13 +111,13 @@ const OnboardingForm = () => {
     }
 
     const source = searchParams.get("src");
-    const { error } = await supabase
-      .from("onboarding_submissions")
-      .insert(toOnboardingRow(values, source));
+    const { data, error } = await supabase.functions.invoke("submit-onboarding", { body: { ...toOnboardingRow(values, source), website: values.website } });
 
-    if (error) {
+    if (error || !data?.saved) {
+      let message = "Please check your connection and try again.";
+      try { const body = await (error as { context?: Response })?.context?.json(); if (body?.error) message = body.error; } catch { /* keep retry message */ }
       toast.error("We couldn't save that", {
-        description: "Please check your connection and try again.",
+        description: message,
       });
       return;
     }

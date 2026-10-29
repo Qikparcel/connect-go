@@ -3,11 +3,11 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 
-const insert = vi.fn().mockResolvedValue({ error: null });
+const insert = vi.fn().mockResolvedValue({ data: { saved: true }, error: null });
 
 vi.mock("@/integrations/supabase/client", () => ({
   isSupabaseConfigured: true,
-  supabase: { from: () => ({ insert }) },
+  supabase: { functions: { invoke: insert } },
 }));
 
 import OnboardingForm from "@/components/onboarding/OnboardingForm";
@@ -107,8 +107,8 @@ describe("OnboardingForm", () => {
     expect(await screen.findByText(/you're on the list/i)).toBeInTheDocument();
 
     await waitFor(() => expect(insert).toHaveBeenCalledTimes(1));
-    expect(insert).toHaveBeenCalledWith(
-      expect.objectContaining({
+    expect(insert).toHaveBeenCalledWith("submit-onboarding", {
+      body: expect.objectContaining({
         heard_about: "Zimfest",
         source: "zimfest",
         roles: ["Sender"],
@@ -116,7 +116,7 @@ describe("OnboardingForm", () => {
         full_name: "Tanaka Moyo",
         business_name: null,
       }),
-    );
+    });
   });
 
   it("restores answers after a page reload", async () => {
