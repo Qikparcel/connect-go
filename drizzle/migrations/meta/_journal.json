@@ -71,6 +71,13 @@
       "when": 1793233297101,
       "tag": "0009_chat_safety_audit_and_booking_gate",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793233655581,
+      "tag": "0010_durable_traffic_limits",
+      "breakpoints": true
     }
   ]
 }

@@ -330,6 +330,24 @@ export type Database = {
         }
         Relationships: []
       }
+      traffic_buckets: {
+        Row: {
+          expires_at: string
+          hits: number
+          key: string
+        }
+        Insert: {
+          expires_at: string
+          hits?: number
+          key: string
+        }
+        Update: {
+          expires_at?: string
+          hits?: number
+          key?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -353,6 +371,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      consume_traffic_limits: { Args: { p_buckets: Json }; Returns: Json }
       decide_booking: {
         Args: { p_booking_id: string; p_status: string }
         Returns: undefined
