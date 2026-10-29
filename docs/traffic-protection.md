@@ -43,6 +43,8 @@ Supabase documentation describes Auth-specific limits and offers custom Edge Fun
 - Six repeated valid lead submissions: 5 saved, sixth 429. Readback confirmed exactly five temporary leads; no sixth reference or save. Valid quote request for the same contact also returned 429. The first quote test used an invalid consent field and was corrected/retested.
 - Anonymous attempt to supply a larger limiter budget through the limiter RPC: 401. Direct counter writes and direct registration inserts: 401.
 - Unauthorised email-preview endpoints: 401 before rendering.
+- Live browser: exhausted chat session displayed “Too many requests” with a 60-second retry and WhatsApp contact. Normal requests passed again after the burst window.
+- Protected registration endpoint saved a real test entry, read back with marketing consent false; same-contact registration after exhausting the lead budget returned 429. Temporary lead/contact/registration test rows removed by ID, traffic counters not cleared.
 - Full unit/regression suite: 79 tests passed across 9 files. Initial live limiter tests failed closed (503) due to a SQL clock-name type conflict; corrected migration and all foregoing live checks rerun.
 
 ## Cost and services
