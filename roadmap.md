@@ -1,7 +1,7 @@
 # Roadmap
 
 - [ ] Enforce the owner’s chatbot operating rules and qualified-lead/booking handoff using existing services; test and deploy server safeguards.
-- [ ] Rate limiting: await owner approval of an ad-hoc approach because no standard backend limiter is available.
+- [ ] Rate limiting: owner declined the custom approach; blocked until a standard limiter is available or owner authorises a custom one.
 
 - [x] Add uploaded sender/recipient and courier/traveller agreement statements to the Terms page and chatbot facts; align FAQ insurance guidance; Terms preview and deployed chatbot answer verified. Website changes await publication.
 
