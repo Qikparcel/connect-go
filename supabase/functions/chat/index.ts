@@ -11,6 +11,7 @@ import {
 } from "../_shared/run-id.ts";
 import { policiesAsText, SUPPORT_EMAIL } from "../_shared/policies.ts";
 import { CHAT_OPERATING_RULES, containsSensitiveData, needsHuman } from "../_shared/chat-safety.ts";
+import { limitTraffic } from "../_shared/traffic-limit.ts";
 
 const MODEL = "openai/gpt-6-astra";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1";
@@ -54,6 +55,8 @@ const json = (status: number, body: unknown) =>
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json(405, { error: "Method not allowed" });
+  const limited = await limitTraffic(req, "chat", corsHeaders, { session: req.headers.get("x-chat-token") ?? undefined });
+  if (limited) return limited;
 
   const apiKey = Deno.env.get("LOVABLE_API_KEY");
   if (!apiKey) return json(500, { error: "Chat is not configured." });

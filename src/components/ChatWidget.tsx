@@ -60,6 +60,14 @@ function ChatWindow({ initial, onReset, initialQuestion, onUsedQuestion }: {
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
       "x-chat-token": initial.token,
     },
+    fetch: async (input, init) => {
+      const response = await fetch(input, init);
+      if (response.status === 429 || response.status === 503) {
+        const body = await response.clone().json().catch(() => null);
+        throw new Error(body?.error ?? "Too many requests. Please wait and try again.");
+      }
+      return response;
+    },
   }), [initial.token]);
   const { messages, sendMessage, status, stop } = useChat({
     id: initial.id,

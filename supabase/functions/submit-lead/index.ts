@@ -5,6 +5,7 @@ import { leadPriority, normalizePhone } from "../_shared/priority.ts";
 import { sendTemplateEmail } from "../_shared/transactional-email-templates/send-email.ts";
 import { ENQUIRY_RECIPIENT } from "../_shared/enquiry-email-config.ts";
 import { screenEnquiry } from "../_shared/chat-safety.ts";
+import { limitTraffic } from "../_shared/traffic-limit.ts";
 
 const CITIES = ["London", "Harare", "Johannesburg", "Other"] as const;
 const WEIGHTS = ["Under 1kg", "1–5kg", "5–10kg", "Over 10kg"] as const;
@@ -82,6 +83,8 @@ const makeRef = () => {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+  const limited = await limitTraffic(req, "lead", corsHeaders);
+  if (limited) return limited;
   try {
     const parsed = Body.safeParse(await req.json().catch(() => null));
     if (!parsed.success) return json({ error: "Please check the form and try again.", fields: parsed.error.flatten().fieldErrors }, 400);
@@ -89,6 +92,9 @@ Deno.serve(async (req) => {
     if (d.website) return json({ reference: makeRef() }); // silently drop bots
     const phone = normalizePhone(d.phone);
     if (!phone) return json({ error: "Please enter a valid WhatsApp number with country code." }, 400);
+    // Contact limits are atomic across all form variants/quotes and checked before writes/email.
+    const contactLimited = await limitTraffic(req, "lead", corsHeaders, { contact: phone, contactOnly: true });
+    if (contactLimited) return contactLimited;
 
     const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const eligibility = screenEnquiry(
@@ -109,11 +115,6 @@ Deno.serve(async (req) => {
     const { data: contact, error: cErr } = await db.from("lead_contacts").select("id").eq("phone", phone).single();
     if (cErr) throw cErr;
     const submitted = { submittedName: d.fullName, submittedEmail: email, submittedBusiness: business };
-
-    const since = new Date(Date.now() - 3600_000).toISOString();
-    const { count } = await db.from("leads").select("id", { count: "exact", head: true })
-      .eq("contact_id", contact.id).gte("created_at", since);
-    if ((count ?? 0) >= 5) return json({ error: "You've sent several requests in the last hour. Please try again later or message us on WhatsApp." }, 429);
 
     let row: Record<string, unknown>;
     let leadType: "sender" | "traveller" | "merchant";

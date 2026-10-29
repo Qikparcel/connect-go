@@ -19,7 +19,7 @@ The website can collect enquiries; booking creation, approval and direct Booked 
 
 ## Blocked / not certified
 
-- Custom chat traffic limiter explicitly declined by the owner; no standard limiter available. Existing lead per-contact submission guard remains unchanged.
+- Custom traffic limiter subsequently authorised, implemented and tested on 29 October; see docs/traffic-protection.md for 79-test regression results and live burst/shared-network/contact/quote tests. Account-specific and authorised email-preview live tests remain unavailable; hosting WAF/CAPTCHA and trustworthy IP provenance are not verified.
 - Secure identity-verification provider and operational eligibility approval workflow are not connected. Bookings remain blocked, including admin creation/approval.
 - No approved live payment provider, escrow compliance evidence, tracking or external application integration was available; assistant has no tools for these actions or records.
 - Signed-in admin end-to-end acceptance could not run: session minting found multiple users, and the requesting user's email did not match an auth account. Requires the owner to sign in in preview or identify/authorise a test account.
@@ -31,6 +31,6 @@ The website can collect enquiries; booking creation, approval and direct Booked 
 
 1. Connect approved secure identity verification and an auditable, server-owned operational eligibility workflow.
 2. Replace the fail-closed booking gate only after those checks are verified; test concurrent duplicates, decisions and direct API bypass attempts as a real signed-in admin and non-admin.
-3. Resolve traffic limiting or explicitly accept that launch risk.
+3. Review the tested custom traffic ceilings and remaining distributed-abuse/provider-verification limitations; complete account/authorised-preview acceptance where enabled.
 4. Verify external app/payment/tracking integrations and notification delivery wherever they are enabled; never infer those states from chat text.
 5. Publish the tested website and repeat the browser acceptance checks on the public origin.

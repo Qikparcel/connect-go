@@ -7,6 +7,7 @@ import { MagicLinkEmail } from '../_shared/email-templates/magic-link.tsx'
 import { RecoveryEmail } from '../_shared/email-templates/recovery.tsx'
 import { EmailChangeEmail } from '../_shared/email-templates/email-change.tsx'
 import { ReauthenticationEmail } from '../_shared/email-templates/reauthentication.tsx'
+import { limitTraffic } from '../_shared/traffic-limit.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -91,6 +92,8 @@ async function handlePreview(req: Request): Promise<Response> {
     })
   }
 
+  const limited = await limitTraffic(req, 'email_preview', previewCorsHeaders)
+  if (limited) return limited
   let type: string
   try {
     const body = await req.json()

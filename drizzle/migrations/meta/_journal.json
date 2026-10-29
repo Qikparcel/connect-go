@@ -71,6 +71,34 @@
       "when": 1793233297101,
       "tag": "0009_chat_safety_audit_and_booking_gate",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793233655581,
+      "tag": "0010_durable_traffic_limits",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793233729500,
+      "tag": "0011_onboarding_server_only_writes",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793233932799,
+      "tag": "0012_fix_traffic_clock_type",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793234023544,
+      "tag": "0013_traffic_counters_explicit_private_grants",
+      "breakpoints": true
     }
   ]
 }
