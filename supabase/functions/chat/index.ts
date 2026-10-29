@@ -108,7 +108,10 @@ Deno.serve(async (req) => {
   const result = streamText({
     model: provider.responses(MODEL),
     instructions: INSTRUCTIONS,
-    toolChoice: escalate ? { type: "tool", toolName: "whatsapp_handoff" } : "auto",
+    prepareStep: ({ stepNumber }) => ({
+      toolChoice: escalate && stepNumber === 0 ? { type: "tool" as const, toolName: "whatsapp_handoff" } : "auto" as const,
+      ...(escalate && stepNumber > 0 ? { activeTools: [] } : {}),
+    }),
     messages: await convertToModelMessages(messages),
     abortSignal: req.signal,
     stopWhen: stepCountIs(4),
