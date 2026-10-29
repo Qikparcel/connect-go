@@ -78,6 +78,13 @@
       "when": 1793233655581,
       "tag": "0010_durable_traffic_limits",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793233729500,
+      "tag": "0011_onboarding_server_only_writes",
+      "breakpoints": true
     }
   ]
 }
