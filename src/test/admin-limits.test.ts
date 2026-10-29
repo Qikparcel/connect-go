@@ -13,9 +13,9 @@ describe("admin limit form", () => {
   it("rejects a fractional ceiling", () =>
     expect(limitRowError({ max_count: 1.5, window_seconds: 60 })).toContain("whole number"));
   it("rejects a ceiling above the database maximum", () =>
-    expect(limitRowError({ max_count: 100001, window_seconds: 60 })).toContain("100000");
+    expect(limitRowError({ max_count: 100001, window_seconds: 60 })).toContain("100000"));
   it("rejects a window longer than a day", () =>
-    expect(limitRowError({ max_count: 12, window_seconds: 86401 })).toContain("86400");
+    expect(limitRowError({ max_count: 12, window_seconds: 86401 })).toContain("86400"));
   it("rejects a cleared field instead of saving zero", () =>
     expect(limitRowError({ max_count: Number(""), window_seconds: 60 })).toContain("at least 1"));
   it("flags the form when any row is invalid", () => {
