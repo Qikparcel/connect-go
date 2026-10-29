@@ -38,7 +38,10 @@ export async function limitTraffic(req: Request, endpoint: TrafficEndpoint, cors
       };
     }));
     const { data, error } = await db.rpc("consume_traffic_limits", { p_buckets: buckets });
-    if (error || !data || typeof data.allowed !== "boolean") throw new Error("Traffic protection unavailable");
+    if (error || !data || typeof data.allowed !== "boolean") {
+      console.error("traffic limiter unavailable", { code: error?.code ?? "invalid_result" });
+      throw new Error("Traffic protection unavailable");
+    }
     if (data.allowed) return null;
     const seconds = Math.max(1, Number(data.retry_after) || 1);
     return new Response(JSON.stringify({ error: retryMessage(seconds), retryAfter: seconds }), {
