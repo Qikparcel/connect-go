@@ -1,5 +1,12 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { configuredLimit, retryMessage, TRAFFIC_DEFAULTS, type TrafficEndpoint } from "./traffic-rules.ts";
+import {
+  configuredLimit,
+  resolveLimit,
+  retryMessage,
+  TRAFFIC_DEFAULTS,
+  type SavedLimit,
+  type TrafficEndpoint,
+} from "./traffic-rules.ts";
 
 export async function hashIdentifier(value: string): Promise<string> {
   // A server-only pepper stops database hashes becoming a directory of phone/IP values.
@@ -7,6 +14,29 @@ export async function hashIdentifier(value: string): Promise<string> {
   if (!pepper) throw new Error("Traffic protection unavailable");
   const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${pepper}:${value}`));
   return Array.from(new Uint8Array(bytes), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Owner-saved ceilings live in a service-only table so the dashboard can retune them
+// without a redeploy. Read at most every 15s: a short cache keeps per-message cost down
+// while a failed read simply keeps the previous values, so limits are never dropped.
+const SETTINGS_TTL_MS = 15000;
+let settingsCache: { at: number; rows: Record<string, SavedLimit> } | null = null;
+
+async function savedLimits(db: ReturnType<typeof createClient>): Promise<Record<string, SavedLimit>> {
+  if (settingsCache && Date.now() - settingsCache.at < SETTINGS_TTL_MS) return settingsCache.rows;
+  try {
+    const { data, error } = await db.from("traffic_limit_settings").select("endpoint,scope,max_count,window_seconds");
+    if (error) throw error;
+    const rows: Record<string, SavedLimit> = {};
+    for (const row of data ?? []) {
+      rows[`${row.endpoint}:${row.scope}`] = { max_count: row.max_count, window_seconds: row.window_seconds };
+    }
+    settingsCache = { at: Date.now(), rows };
+    return rows;
+  } catch (error) {
+    console.error("saved traffic limits unreadable; keeping previous values", { code: (error as { code?: string })?.code ?? "read_error" });
+    return settingsCache?.rows ?? {};
+  }
 }
 
 export async function limitTraffic(req: Request, endpoint: TrafficEndpoint, cors: Record<string, string>, identifiers: { session?: string; contact?: string; contactOnly?: boolean } = {}): Promise<Response | null> {
@@ -28,13 +58,15 @@ export async function limitTraffic(req: Request, endpoint: TrafficEndpoint, cors
     const network = req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
     if (!identifiers.contactOnly && network && network.length <= 100) scopes.network = network;
     const rules = TRAFFIC_DEFAULTS[endpoint] as Record<string, readonly [number, number]>;
+    const saved = await savedLimits(db);
     const buckets = await Promise.all(Object.entries(scopes).filter(([scope]) => rules[scope]).map(async ([scope, identity]) => {
-      const [limit, window] = rules[scope];
       const prefix = `QP_LIMIT_${endpoint.toUpperCase()}_${scope.toUpperCase()}`;
+      const [limit, window] = resolveLimit(rules[scope], { count: Deno.env.get(`${prefix}_COUNT`), seconds: Deno.env.get(`${prefix}_SECONDS`) }, saved[`${endpoint}:${scope}`]);
       return {
         key: await hashIdentifier(`${endpoint}:${scope}:${identity}`),
-        limit: configuredLimit(Deno.env.get(`${prefix}_COUNT`), limit),
-        window: configuredLimit(Deno.env.get(`${prefix}_SECONDS`), window),
+        scope,
+        limit,
+        window,
       };
     }));
     const { data, error } = await db.rpc("consume_traffic_limits", { p_buckets: buckets });
@@ -44,6 +76,12 @@ export async function limitTraffic(req: Request, endpoint: TrafficEndpoint, cors
     }
     if (data.allowed) return null;
     const seconds = Math.max(1, Number(data.retry_after) || 1);
+    // Daily counters per endpoint/scope: bounded growth, and shows whether a ceiling is
+    // actually turning visitors away. A failed stat write must not change the response.
+    if (typeof data.blocked_scope === "string") {
+      const { error: statError } = await db.rpc("record_traffic_block", { p_endpoint: endpoint, p_scope: data.blocked_scope });
+      if (statError) console.error("traffic block stat not saved", { code: statError.code });
+    }
     return new Response(JSON.stringify({ error: retryMessage(seconds), retryAfter: seconds }), {
       status: 429,
       headers: { ...cors, "Content-Type": "application/json", "Retry-After": String(seconds), "Cache-Control": "no-store", "Access-Control-Expose-Headers": "Retry-After" },

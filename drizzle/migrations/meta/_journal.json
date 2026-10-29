@@ -99,6 +99,27 @@
       "when": 1793234023544,
       "tag": "0013_traffic_counters_explicit_private_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793234559385,
+      "tag": "0014_admin_managed_traffic_limits",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1793234590764,
+      "tag": "0015_report_blocked_traffic_scope",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793234665369,
+      "tag": "0016_harden_traffic_limit_tables",
+      "breakpoints": true
     }
   ]
 }

@@ -12,7 +12,19 @@ Lovable Cloud has no standard application rate-limiting primitive. The owner ini
 | Leads, quote requests, guided-chat submissions and onboarding registrations | Shared 60 requests / 60 seconds | Shared 5 / hour per normalised phone hash; 10 / hour per validated account; 60 / minute per network hint |
 | Authenticated email-template previews | Shared 10 renders / 60 seconds | Valid server credential required before rendering |
 
-Settings are server environment variables, e.g. `QP_LIMIT_CHAT_GLOBAL_COUNT`, `QP_LIMIT_CHAT_GLOBAL_SECONDS`, `QP_LIMIT_LEAD_CONTACT_COUNT`, `QP_LIMIT_LEAD_CONTACT_SECONDS`. Other scope names follow the same pattern. Positive integers 1–100000 only; invalid settings fall back to safe defaults. No request/body value controls a ceiling.
+Settings come from three places, in this order: a ceiling saved by the owner in the admin dashboard, then a server environment variable (e.g. `QP_LIMIT_CHAT_GLOBAL_COUNT`, `QP_LIMIT_CHAT_GLOBAL_SECONDS`, `QP_LIMIT_LEAD_CONTACT_COUNT`, `QP_LIMIT_LEAD_CONTACT_SECONDS`; other scope names follow the same pattern), then the built-in default above. Positive integers 1–100000 only, windows 1–86400 seconds; anything else falls back rather than widening a limit. No request/body value controls a ceiling.
+
+## Owner-managed limits
+
+The admin dashboard's **Limits** tab lists every ceiling the server would actually enforce and lets a team member with admin access retune it without a redeploy.
+
+- Saved values live in `public.traffic_limit_settings`; daily throttle counts live in `public.traffic_limit_blocks`. Both tables have row-level security enabled with no policies and their `anon`/`authenticated` grants revoked, so only the service role can read or write them.
+- Reads and writes go through the `manage-limits` function, which requires a validated team session plus `has_role(uid,'admin')`; a visitor cannot read, widen or remove a ceiling from the browser.
+- The limiter caches saved values for at most 15 seconds, so a saved change takes effect within about 15 seconds. If the saved-value read fails, the limiter keeps the last known values and still enforces them; it never drops a limit.
+- Each throttled request increments one row per endpoint, scope and day (`record_traffic_block`, service-role execute only), which the dashboard shows as "Throttled (7 days)" so the owner can see whether a ceiling is turning visitors away.
+- A ceiling for a scope the endpoint never checks (e.g. a contact limit on email previews) is rejected rather than stored, so a saved row can never silently do nothing.
+- Unit-tested in `src/test/traffic-rules.test.ts` (precedence and rejection of unsafe saved rows) and `src/test/admin-limits.test.ts` (dashboard form validation and sending only edited rows).
+
 
 ## Enforcement
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { MessageCircle } from "lucide-react";
+import { Check, MessageCircle, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTeamAuth } from "@/hooks/use-team-auth";
 import Bookings from "@/components/admin/Bookings";
+import Chats from "@/components/admin/Chats";
+import ChatbotLimits from "@/components/admin/ChatbotLimits";
 import TeamProfile from "@/components/admin/TeamProfile";
 
 const STATUSES = ["New", "Contacted", "Qualified", "Matched", "Lost"];
@@ -48,6 +50,22 @@ function Dashboard({ userId }: { userId: string }) {
     setLeads((ls) => ls.map((l) => (l.id === id ? { ...l, ...patch } : l)));
   };
 
+  // Approving moves an enquiry into the working pipeline (Qualified); rejecting marks it
+  // Lost. Neither creates a booking — those stay database-blocked until verification and
+  // operational eligibility checks are connected. Both decisions are written to the audit log.
+  const decide = async (lead: Lead, decision: "approved" | "rejected") => {
+    setError(""); setBusy(lead.id);
+    const status = decision === "approved" ? "Qualified" : "Lost";
+    const { error: saveError } = await supabase.from("leads")
+      .update({ status, updated_at: new Date().toISOString() }).eq("id", lead.id);
+    if (saveError) { setBusy(null); setError("Unable to record that decision. Please try again."); return; }
+    const { error: auditError } = await supabase.from("lead_events")
+      .insert({ event: decision === "approved" ? "lead_approved" : "lead_rejected", label: lead.reference, utm: {} });
+    if (auditError) console.error("decision not written to the audit log", { code: auditError.code });
+    setLeads((ls) => ls.map((l) => (l.id === lead.id ? { ...l, status } : l)));
+    setBusy(null);
+  };
+
   const shown = useMemo(() => leads.filter((l) =>
     (type === "all" || l.lead_type === type) && (prio === "all" || l.priority === prio) &&
     (!route || `${l.origin} ${l.destination}`.toLowerCase().includes(route.toLowerCase()))), [leads, type, prio, route]);
@@ -72,8 +90,16 @@ function Dashboard({ userId }: { userId: string }) {
         </div>
       </div>
       <Tabs value={tab} onValueChange={setTab}>
-      <TabsList><TabsTrigger value="bookings">Bookings</TabsTrigger><TabsTrigger value="enquiries">Enquiries</TabsTrigger><TabsTrigger value="profile">Team profile</TabsTrigger></TabsList>
+      <TabsList className="h-auto flex-wrap">
+        <TabsTrigger value="bookings">Bookings</TabsTrigger>
+        <TabsTrigger value="enquiries">Enquiries</TabsTrigger>
+        <TabsTrigger value="chats">Chat history</TabsTrigger>
+        <TabsTrigger value="limits">Limits</TabsTrigger>
+        <TabsTrigger value="profile">Team profile</TabsTrigger>
+      </TabsList>
       <TabsContent value="bookings"><Bookings revision={revision} onDecision={() => setRevision(v => v + 1)} /></TabsContent>
+      <TabsContent value="chats"><Chats /></TabsContent>
+      <TabsContent value="limits"><ChatbotLimits /></TabsContent>
       <TabsContent value="profile"><TeamProfile userId={userId} /></TabsContent>
       <TabsContent value="enquiries" className="pt-6">
       <p className="mb-4 text-sm text-muted-foreground">Enquiries remain available. Booking creation and approval are paused until secure verification and operational eligibility checks are connected.</p>
@@ -96,7 +122,7 @@ function Dashboard({ userId }: { userId: string }) {
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="text-left text-muted-foreground border-b border-border">
-            <tr>{["Ref", "Type", "Priority", "Name", "Route", "Date / when", "Weight / space", "Status", "Owner", "Actions"].map((h) => <th key={h} className="p-3 font-medium">{h}</th>)}</tr>
+            <tr>{["Ref", "Type", "Priority", "Name", "Route", "Date / when", "Weight / space", "Status", "Owner", "Decision"].map((h) => <th key={h} className="p-3 font-medium">{h}</th>)}</tr>
           </thead>
           <tbody>
             {loading && <tr><td colSpan={10} className="p-6 text-center text-muted-foreground">Loading…</td></tr>}
@@ -118,68 +144,41 @@ function Dashboard({ userId }: { userId: string }) {
                 </td>
                 <td className="p-3"><Input className="h-8 w-28" defaultValue={l.owner ?? ""} maxLength={60} onBlur={(e) => e.target.value !== (l.owner ?? "") && update(l.id, { owner: e.target.value || null })} /></td>
                 <td className="p-3">
-                  <Button size="sm" variant="outline" className="mb-2" disabled title="Secure verification and operational checks are required" onClick={async () => {
-                    setBusy(l.id); setError("");
-                    const { error } = await supabase.rpc("request_booking", { p_lead_id: l.id });
-                    setBusy(null);
-                    if (error) { setError(error.message); return; }
-                    setRevision(v => v + 1); setTab("bookings");
-                  }}>{bookingLeads.includes(l.id) ? "Booking requested" : busy === l.id ? "Creating…" : "Request booking"}</Button>
-                  {l.lead_contacts?.phone && l.details.serviceContactConsent === true && (
-                    <Button size="sm" variant="outline" asChild>
-                      <a href={`https://wa.me/${l.lead_contacts.phone.replace("+", "")}?text=${encodeURIComponent(`Hi ${l.lead_contacts.full_name}, this is QikParcel following up on ${l.reference}.`)}`} target="_blank" rel="noopener noreferrer">
-                        <MessageCircle className="h-4 w-4" />
-                      </a>
-                    </Button>
-                  )}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                      <Button size="sm" variant={l.status === "Qualified" || l.status === "Matched" || l.status === "Booked" ? "default" : "outline"}
+                        disabled={busy === l.id} title="Marks the enquiry Qualified and records the decision"
+                        onClick={() => void decide(l, "approved")}>
+                        <Check className="mr-1 h-4 w-4" />Approve
+                      </Button>
+                      <Button size="sm" variant="outline" disabled={busy === l.id} title="Marks the enquiry Lost and records the decision"
+                        onClick={() => void decide(l, "rejected")}>
+                        <X className="mr-1 h-4 w-4" />Reject
+                      </Button>
+                    </div>
+                    <Button size="sm" variant="outline" className="mt-1" disabled title="Secure verification and operational checks are required" onClick={async () => {
+                      setBusy(l.id); setError("");
+                      const { error } = await supabase.rpc("request_booking", { p_lead_id: l.id });
+                      setBusy(null);
+                      if (error) { setError(error.message); return; }
+                      setRevision(v => v + 1); setTab("bookings");
+                    }}>{bookingLeads.includes(l.id) ? "Booking requested" : busy === l.id ? "Creating…" : "Request booking"}</Button>
+                    {l.lead_contacts?.phone && l.details.serviceContactConsent === true && (
+                      <Button size="sm" variant="outline" asChild>
+                        <a href={`https://wa.me/${l.lead_contacts.phone.replace("+", "")}?text=${encodeURIComponent(`Hi ${l.lead_contacts.full_name}, this is QikParcel following up on ${l.reference}.`)}`} target="_blank" rel="noopener noreferrer">
+                          <MessageCircle className="h-4 w-4" />
+                        </a>
+                      </Button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <ChatList />
       </TabsContent></Tabs>
     </div>
-  );
-}
-
-type Chat = { id: string; full_name: string | null; phone: string | null; email: string | null; interest: string | null; messages: { id: string; role: string; parts: { type: string; text?: string }[] }[]; updated_at: string };
-
-function ChatList() {
-  const [chats, setChats] = useState<Chat[]>([]);
-  const [openId, setOpenId] = useState<string | null>(null);
-  useEffect(() => {
-    supabase.from("chat_conversations").select("*").order("updated_at", { ascending: false }).limit(200)
-      .then(({ data }) => setChats((data as unknown as Chat[]) ?? []));
-  }, []);
-  return (
-    <section className="mt-12">
-      <h2 className="text-2xl font-black text-foreground mb-4">Website chats</h2>
-      {chats.length === 0 && <p className="text-sm text-muted-foreground">No chats yet.</p>}
-      <div className="space-y-3">
-        {chats.map((c) => (
-          <div key={c.id} className="rounded-xl border border-border bg-card p-4">
-            <button className="flex w-full flex-wrap items-center gap-3 text-left" onClick={() => setOpenId(openId === c.id ? null : c.id)}>
-              <span className="font-semibold text-foreground">{c.full_name ?? "Anonymous visitor"}</span>
-              {c.interest && <Badge variant="secondary" className="capitalize">{c.interest}</Badge>}
-              {c.phone && <span className="text-sm text-muted-foreground">{c.phone}</span>}
-              {c.email && <span className="text-sm text-muted-foreground">{c.email}</span>}
-              <span className="ml-auto text-xs text-muted-foreground">{new Date(c.updated_at).toLocaleString()} · {c.messages.length} messages</span>
-            </button>
-            {openId === c.id && (
-              <div className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
-                {c.messages.map((m) => {
-                  const text = m.parts.filter((p) => p.type === "text").map((p) => p.text).join("\n");
-                  if (!text) return null;
-                  return <p key={m.id} className={m.role === "user" ? "text-foreground" : "text-muted-foreground"}><span className="font-semibold">{m.role === "user" ? "Visitor" : "Qik"}:</span> {text}</p>;
-                })}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </section>
   );
 }
 

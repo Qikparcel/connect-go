@@ -348,6 +348,57 @@ export type Database = {
         }
         Relationships: []
       }
+      traffic_limit_blocks: {
+        Row: {
+          blocks: number
+          day: string
+          endpoint: string
+          scope: string
+          updated_at: string
+        }
+        Insert: {
+          blocks?: number
+          day: string
+          endpoint: string
+          scope: string
+          updated_at?: string
+        }
+        Update: {
+          blocks?: number
+          day?: string
+          endpoint?: string
+          scope?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      traffic_limit_settings: {
+        Row: {
+          endpoint: string
+          max_count: number
+          scope: string
+          updated_at: string
+          updated_by: string | null
+          window_seconds: number
+        }
+        Insert: {
+          endpoint: string
+          max_count: number
+          scope: string
+          updated_at?: string
+          updated_by?: string | null
+          window_seconds: number
+        }
+        Update: {
+          endpoint?: string
+          max_count?: number
+          scope?: string
+          updated_at?: string
+          updated_by?: string | null
+          window_seconds?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -382,6 +433,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      record_traffic_block: {
+        Args: { p_endpoint: string; p_scope: string }
+        Returns: undefined
       }
       request_booking: { Args: { p_lead_id: string }; Returns: string }
     }
