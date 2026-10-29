@@ -20,7 +20,11 @@ type Payload = { limits: LimitRow[]; blocks: Block[] };
 // The settings table is service-role only, so every read and write goes through the
 // manage-limits function; the browser never touches the ceiling rows itself.
 async function callLimits(body?: unknown): Promise<{ data: Payload | null; message: string }> {
-  const { data, error } = await supabase.functions.invoke("manage-limits", body ? { method: "POST", body } : undefined);
+  // invoke() defaults to POST, so the read has to ask for GET explicitly.
+  const { data, error } = await supabase.functions.invoke(
+    "manage-limits",
+    body ? { method: "POST", body } : { method: "GET" },
+  );
   if (error) {
     let message = "Unable to reach the settings service. Please try again.";
     try {
