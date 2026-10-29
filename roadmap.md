@@ -1,6 +1,7 @@
 # Roadmap
 
 - [ ] Enforce the owner’s chatbot operating rules and qualified-lead/booking handoff using existing services; test and deploy server safeguards.
+- [ ] Run critical pre-launch acceptance tests for eligibility, privacy, payments, escalation, prompt injection, lead priorities, saved enquiries and permissions; report launch blockers.
 - [ ] Rate limiting: owner declined the custom approach; blocked until a standard limiter is available or owner authorises a custom one.
 
 - [x] Add uploaded sender/recipient and courier/traveller agreement statements to the Terms page and chatbot facts; align FAQ insurance guidance; Terms preview and deployed chatbot answer verified. Website changes await publication.
