@@ -34,6 +34,7 @@ export default function Bookings({ revision, onDecision }: { revision: number; o
   };
   const shown = items.filter(item => filter === "all" || item.status === filter);
   return <section className="py-6">
+    <p className="mb-4 text-sm text-muted-foreground">Booking approval is paused until secure verification and operational eligibility checks are connected. Existing records remain available.</p>
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><h2 className="text-2xl font-bold">Bookings</h2><Button variant="outline" size="icon" aria-label="Refresh bookings" title="Refresh bookings" disabled={loading} onClick={load}><RefreshCw className="h-4 w-4" /></Button></div>
     <Tabs value={filter} onValueChange={setFilter}><TabsList className="h-auto flex-wrap">{["Pending", "Approved", "Rejected", "all"].map(status => <TabsTrigger key={status} value={status}>{status === "all" ? "All" : status} ({items.filter(item => status === "all" || item.status === status).length})</TabsTrigger>)}</TabsList></Tabs>
     {error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}
@@ -47,7 +48,7 @@ export default function Bookings({ revision, onDecision }: { revision: number; o
           <p className="text-sm text-muted-foreground">{lead?.travel_date || "Date not specified"} · {lead?.weight || "Weight not specified"} · {lead?.lead_type}</p>
           {lead?.details && typeof lead.details === "object" && <dl className="mt-4 space-y-1 text-sm">{Object.entries(lead.details).filter(([, v]) => typeof v === "string" && v).map(([key, value]) => <div key={key} className="break-words"><dt className="inline text-muted-foreground capitalize">{key.replaceAll("_", " ")}: </dt><dd className="inline">{String(value)}</dd></div>)}</dl>}
           <p className="mt-4 text-xs text-muted-foreground">Requested {new Date(booking.created_at).toLocaleString()}{booking.decided_at && ` · Decided ${new Date(booking.decided_at).toLocaleString()}`}</p>
-          {booking.status === "Pending" && <div className="mt-5 flex gap-3"><Button variant="hero" disabled={busy} onClick={() => setDecision({ booking, status: "Approved" })}><Check className="mr-2 h-4 w-4" />Approve</Button><Button variant="outline" disabled={busy} onClick={() => setDecision({ booking, status: "Rejected" })}><X className="mr-2 h-4 w-4" />Reject</Button></div>}
+          {booking.status === "Pending" && <div className="mt-5 flex gap-3"><Button variant="hero" disabled title="Secure verification and operational checks are required"><Check className="mr-2 h-4 w-4" />Approve</Button><Button variant="outline" disabled={busy} onClick={() => setDecision({ booking, status: "Rejected" })}><X className="mr-2 h-4 w-4" />Reject</Button></div>}
         </article>;
       })}
     </div>}
