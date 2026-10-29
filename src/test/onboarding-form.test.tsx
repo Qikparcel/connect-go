@@ -3,7 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 
-const insert = vi.fn().mockResolvedValue({ data: { saved: true }, error: null });
+const { insert } = vi.hoisted(() => ({ insert: vi.fn().mockResolvedValue({ data: { saved: true }, error: null }) }));
 
 vi.mock("@/integrations/supabase/client", () => ({
   isSupabaseConfigured: true,
