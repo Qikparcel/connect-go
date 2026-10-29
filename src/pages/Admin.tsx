@@ -16,7 +16,7 @@ const STATUSES = ["New", "Contacted", "Qualified", "Matched", "Lost"];
 type Lead = {
   id: string; reference: string; lead_type: string; origin: string | null; destination: string | null;
   travel_date: string | null; urgency: string | null; weight: string | null; priority: string; status: string;
-  owner: string | null; created_at: string; details: Record<string, string>;
+  owner: string | null; created_at: string; details: Record<string, unknown>;
   lead_contacts: { full_name: string; phone: string; email: string | null; business_name: string | null } | null;
 };
 
@@ -125,7 +125,7 @@ function Dashboard({ userId }: { userId: string }) {
                     if (error) { setError(error.message); return; }
                     setRevision(v => v + 1); setTab("bookings");
                   }}>{bookingLeads.includes(l.id) ? "Booking requested" : busy === l.id ? "Creating…" : "Request booking"}</Button>
-                  {l.lead_contacts?.phone && l.details.serviceContactConsent === true as unknown as string && (
+                  {l.lead_contacts?.phone && l.details.serviceContactConsent === true && (
                     <Button size="sm" variant="outline" asChild>
                       <a href={`https://wa.me/${l.lead_contacts.phone.replace("+", "")}?text=${encodeURIComponent(`Hi ${l.lead_contacts.full_name}, this is QikParcel following up on ${l.reference}.`)}`} target="_blank" rel="noopener noreferrer">
                         <MessageCircle className="h-4 w-4" />
