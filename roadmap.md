@@ -31,4 +31,4 @@
 
 - [x] Add distinct search-focused titles, descriptions and H1/H2/H3 headings to the Zimbabwe hub, London–Harare, Harare–Johannesburg and route FAQ; publication pending.
 
-- [ ] Publish route search metadata, then submit an owner-supplied real Harare–Johannesburg enquiry and verify it in Zimbabwe enquiries (waiting on real enquiry details).
+- [x] Publication requested for route search metadata; owner supplied a London–Harare enquiry instead. Submitted QP-S26S7T through the London–Harare page and verified its row in the signed-in Zimbabwe enquiries tab. Contact permission confirmed. Form stores Documents / Under 1kg / sending date 2 November 2026; exact certificate, A4-envelope and 100g detail are not supported by its fields.
