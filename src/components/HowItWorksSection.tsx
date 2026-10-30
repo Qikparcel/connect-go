@@ -6,7 +6,7 @@ const steps = [
   "Confirm your booking and receive updates.",
 ];
 
-const featured = [["London", "Harare"], ["London", "Johannesburg"]];
+const featured = [["London", "Harare"], ["London", "Johannesburg"], ["Harare", "Johannesburg"]];
 const others = ["UK ↔ Estonia", "UK ↔ South Africa", "Local & intercity UK deliveries"];
 
 const HowItWorksSection = () => (
