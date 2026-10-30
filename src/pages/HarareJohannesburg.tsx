@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { trackRouteClick } from "@/lib/routeTracking";
+
+const ROUTE = "Harare-Johannesburg";
 
 const wa = (text: string) => `https://wa.me/447443191370?text=${encodeURIComponent(text)}`;
 
@@ -30,8 +33,8 @@ const HarareJohannesburg = () => {
                 <h3 className="font-bold text-card-foreground">{d.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">Documents only during the pilot.</p>
                 <div className="mt-4 flex flex-col gap-2">
-                  <Button asChild size="sm"><Link to="/onboarding">Send an enquiry</Link></Button>
-                  <Button asChild size="sm" variant="outline"><a href={wa(d.msg)} target="_blank" rel="noopener noreferrer">Ask on WhatsApp</a></Button>
+                  <Button asChild size="sm"><Link to="/onboarding" onClick={() => trackRouteClick(ROUTE, d.title.replace(/ /g, ""), "enquiry")}>Send an enquiry</Link></Button>
+                  <Button asChild size="sm" variant="outline"><a href={wa(d.msg)} onClick={() => trackRouteClick(ROUTE, d.title.replace(/ /g, ""), "whatsapp")} target="_blank" rel="noopener noreferrer">Ask on WhatsApp</a></Button>
                 </div>
               </div>
             ))}
@@ -61,7 +64,7 @@ const HarareJohannesburg = () => {
         <section className="mt-10 rounded-lg border border-border bg-muted p-6">
           <h2 className="text-xl font-bold text-foreground">Travel this route often?</h2>
           <p className="mt-3 text-muted-foreground">If you regularly fly, take the coach or drive between Harare and Johannesburg, register your upcoming trips. We'll contact you if a suitable documents request comes up. Earnings and matches are not guaranteed.</p>
-          <Button asChild className="mt-4" variant="secondary"><Link to="/onboarding">Register as a traveller</Link></Button>
+          <Button asChild className="mt-4" variant="secondary"><Link to="/onboarding" onClick={() => trackRouteClick(ROUTE, "Both", "traveller")}>Register as a traveller</Link></Button>
         </section>
 
         <p className="mt-10 text-sm text-muted-foreground">More answers in our <Link to="/faq" className="text-primary hover:underline">FAQ</Link> and <Link to="/terms" className="text-primary hover:underline">Terms</Link>.</p>
