@@ -67,7 +67,7 @@ const HarareJohannesburg = () => {
           <Button asChild className="mt-4" variant="secondary"><Link to="/onboarding" onClick={() => trackRouteClick(ROUTE, "Both", "traveller")}>Register as a traveller</Link></Button>
         </section>
 
-        <p className="mt-10 text-sm text-muted-foreground">More answers in our <Link to="/faq" className="text-primary hover:underline">FAQ</Link> and <Link to="/terms" className="text-primary hover:underline">Terms</Link>.</p>
+        <p className="mt-10 text-sm text-muted-foreground">Pilot questions? See the <Link to="/harare-johannesburg-faq" className="text-primary hover:underline">Harare–Johannesburg FAQ</Link>. More answers in our <Link to="/faq" className="text-primary hover:underline">FAQ</Link> and <Link to="/terms" className="text-primary hover:underline">Terms</Link>.</p>
       </div>
     </main>
   );
