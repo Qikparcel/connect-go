@@ -27,3 +27,4 @@
 - [x] Track enquiry/WhatsApp/traveller clicks per Zimbabwe corridor page; Route interest admin tab verified signed in
 - [x] Harare–Johannesburg FAQ page linked from Zimbabwe and route pages (publish pending)
 - [ ] Zimbabwe pricing page: on hold at owner's request (2026-10-30); needs approved prices before building
+- [ ] Publish + ask Google about Zimbabwe corridor/FAQ pages (2026-10-30)
