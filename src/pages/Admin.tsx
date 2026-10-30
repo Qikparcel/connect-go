@@ -13,6 +13,7 @@ import Chats from "@/components/admin/Chats";
 import ChatbotLimits from "@/components/admin/ChatbotLimits";
 import TeamProfile from "@/components/admin/TeamProfile";
 import RouteInterest from "@/components/admin/RouteInterest";
+import ZimbabweEnquiries from "@/components/admin/ZimbabweEnquiries";
 
 const STATUSES = ["New", "Contacted", "Qualified", "Matched", "Lost"];
 
@@ -95,6 +96,7 @@ function Dashboard({ userId }: { userId: string }) {
         <TabsTrigger value="bookings">Bookings</TabsTrigger>
         <TabsTrigger value="enquiries">Enquiries</TabsTrigger>
         <TabsTrigger value="chats">Chat history</TabsTrigger>
+        <TabsTrigger value="zimbabwe">Zimbabwe enquiries</TabsTrigger>
         <TabsTrigger value="routes">Route interest</TabsTrigger>
         <TabsTrigger value="limits">Limits</TabsTrigger>
         <TabsTrigger value="profile">Team profile</TabsTrigger>
@@ -102,6 +104,7 @@ function Dashboard({ userId }: { userId: string }) {
       <TabsContent value="bookings"><Bookings revision={revision} onDecision={() => setRevision(v => v + 1)} /></TabsContent>
       <TabsContent value="chats"><Chats /></TabsContent>
       <TabsContent value="routes"><RouteInterest /></TabsContent>
+      <TabsContent value="zimbabwe"><ZimbabweEnquiries /></TabsContent>
       <TabsContent value="limits"><ChatbotLimits /></TabsContent>
       <TabsContent value="profile"><TeamProfile userId={userId} /></TabsContent>
       <TabsContent value="enquiries" className="pt-6">
