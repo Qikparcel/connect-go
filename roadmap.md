@@ -30,3 +30,5 @@
 - [x] Publish Zimbabwe corridor/FAQ pages (2026-10-30); "Request indexing" in Search Console must be clicked by the owner
 
 - [x] Add distinct search-focused titles, descriptions and H1/H2/H3 headings to the Zimbabwe hub, London–Harare, Harare–Johannesburg and route FAQ; publication pending.
+
+- [ ] Publish route search metadata, then submit an owner-supplied real Harare–Johannesburg enquiry and verify it in Zimbabwe enquiries (waiting on real enquiry details).
