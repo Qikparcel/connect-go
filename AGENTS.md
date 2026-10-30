@@ -18,3 +18,5 @@
 - Traffic ceilings are owner-editable from the admin dashboard through the manage-limits function; the limiter reads saved overrides from public.traffic_limit_settings (service-role only, RLS with no policies) before environment values and code defaults. Why: retuning a ceiling must not need a redeploy, while the browser must never widen a limit itself.
 - Enquiry approve/reject decisions are dashboard actions that set status and write a lead_events audit row; they never create bookings. Why: booking safety stays database-blocked while ordinary triage remains usable by the team.
 - New lead_events audit event names must be added to both the insert policy and the lead_events_event_check constraint. Why: a name missing from either silently drops the audit row while the dashboard action still appears to succeed.
+
+- Corridor pages use RoutePageHead with a root HelmetProvider for unique titles, descriptions and self-referencing canonical URLs; static index.html metadata stays the social-crawler fallback. Why: route navigation must not inherit another corridor’s search identity.

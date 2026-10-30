@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { RoutePageHead } from "@/components/RoutePageHead";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { trackRouteClick } from "@/lib/routeTracking";
@@ -6,12 +6,12 @@ import { trackRouteClick } from "@/lib/routeTracking";
 const WA = `https://wa.me/447443191370?text=${encodeURIComponent("Hi QikParcel, I have a question about the Harare–Johannesburg pilot.")}`;
 
 const faqs: { q: string; a: string }[] = [
-  { q: "Does the pilot run in both directions?", a: "Yes. You can enquire about sending documents from Harare to Johannesburg or from Johannesburg to Harare." },
-  { q: "What can I send on this route?", a: "During the pilot, cross-border routes are limited to documents. Other items, such as clothing or electronics, are not accepted on this route for now." },
+  { q: "Can I send documents from Johannesburg to Harare too?", a: "Yes. You can enquire about sending documents from Harare to Johannesburg or from Johannesburg to Harare." },
+  { q: "What can I send from Harare to Johannesburg?", a: "During the pilot, cross-border routes are limited to documents. Other items, such as clothing or electronics, are not accepted on this route for now." },
   { q: "What can never be sent?", a: "Prohibited or dangerous items cannot be sent, including cash, weapons, drugs and counterfeit goods. The full list is in our Prohibited Items policy. Never hide or leave out items when you declare what you are sending." },
   { q: "Is my enquiry a confirmed booking?", a: "No. An enquiry is not a confirmed booking. Our team reviews it and checks eligibility first. If a suitable traveller is available, we contact you about next steps." },
   { q: "Do you guarantee a traveller or a delivery date?", a: "No. We don't guarantee matching, delivery or collection times." },
-  { q: "How much does it cost and how long does it take?", a: "We don't publish fixed prices or delivery times yet. Ask us on WhatsApp and our team will reply with what is currently available." },
+  { q: "How much does Harare–Johannesburg document delivery cost and how long does it take?", a: "We don't publish fixed prices or delivery times yet. Ask us on WhatsApp and our team will reply with what is currently available." },
   { q: "Can you help with customs?", a: "We don't give customs clearance advice. Senders are legally responsible for the contents they declare." },
   { q: "Will I need to verify my identity?", a: "Identity verification may be required for certain features. Never share passport photos, passwords or card details in chat — our team will use a secure process if checks are needed." },
   { q: "Who can carry documents on this route?", a: "Travellers must be 18 or over, have valid ID and pass verification checks. They are independent individuals, not QikParcel employees. Earnings and matches are not guaranteed." },
@@ -19,14 +19,12 @@ const faqs: { q: string; a: string }[] = [
 ];
 
 const HarareJohannesburgFaq = () => {
-  useEffect(() => {
-    document.title = "Harare–Johannesburg Pilot FAQ | QikParcel";
-  }, []);
   return (
     <main className="min-h-screen bg-background">
+      <RoutePageHead title="Harare–Johannesburg Document Delivery FAQ | QikParcel" description="Questions about sending documents between Harare and Johannesburg? Read the pilot rules, eligibility, customs responsibilities and enquiry process." path="/harare-johannesburg-faq" />
       <div className="container mx-auto max-w-2xl px-4 py-20">
         <Link to="/send-parcel-uk-to-zimbabwe" className="text-sm text-primary hover:underline">← Zimbabwe routes</Link>
-        <h1 className="mt-6 text-4xl font-black text-foreground">Harare–Johannesburg pilot FAQ</h1>
+        <h1 className="mt-6 text-4xl font-black text-foreground">Harare–Johannesburg document delivery FAQ</h1>
         <p className="mt-6 text-muted-foreground">Rules and eligibility for sending documents between Harare and Johannesburg during the QikParcel pilot.</p>
         {faqs.map((f) => (
           <section key={f.q} className="mt-8">

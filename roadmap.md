@@ -28,3 +28,5 @@
 - [x] Harare–Johannesburg FAQ page linked from Zimbabwe and route pages (publish pending)
 - [ ] Zimbabwe pricing page: on hold at owner's request (2026-10-30); needs approved prices before building
 - [x] Publish Zimbabwe corridor/FAQ pages (2026-10-30); "Request indexing" in Search Console must be clicked by the owner
+
+- [x] Add distinct search-focused titles, descriptions and H1/H2/H3 headings to the Zimbabwe hub, London–Harare, Harare–Johannesburg and route FAQ; publication pending.
