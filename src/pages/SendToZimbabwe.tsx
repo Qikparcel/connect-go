@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { trackRouteClick } from "@/lib/routeTracking";
 
 const WA = `https://wa.me/447443191370?text=${encodeURIComponent("Hi QikParcel, I'd like to send documents to or from Zimbabwe.")}`;
 
@@ -35,6 +36,8 @@ const SendToZimbabwe = () => {
           </div>
         </section>
 
+        <p className="mt-4 text-sm text-muted-foreground">Questions about the Harare ↔ Johannesburg pilot? Read the <Link to="/harare-johannesburg-faq" className="text-primary hover:underline">Harare–Johannesburg FAQ</Link>.</p>
+
         <section className="mt-10">
           <h2 className="text-xl font-bold text-foreground">What you can send during the pilot</h2>
           <p className="mt-3 text-muted-foreground">During the pilot, cross-border routes are limited to documents. Prohibited or dangerous items cannot be sent — see our <Link to="/prohibited-items" className="text-primary hover:underline">Prohibited Items policy</Link>.</p>
@@ -44,8 +47,8 @@ const SendToZimbabwe = () => {
           <h2 className="text-xl font-bold text-foreground">Prices and timings</h2>
           <p className="mt-3 text-muted-foreground">We don't publish fixed prices or delivery times yet. An enquiry is not a confirmed booking — our team checks eligibility first.</p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <Button asChild><Link to="/onboarding">Send an enquiry</Link></Button>
-            <Button asChild variant="outline"><a href={WA} target="_blank" rel="noopener noreferrer">Message us on WhatsApp</a></Button>
+            <Button asChild><Link to="/onboarding" onClick={() => trackRouteClick("Zimbabwe", "All", "enquiry")}>Send an enquiry</Link></Button>
+            <Button asChild variant="outline"><a href={WA} onClick={() => trackRouteClick("Zimbabwe", "All", "whatsapp")} target="_blank" rel="noopener noreferrer">Message us on WhatsApp</a></Button>
           </div>
           <p className="mt-6 text-sm text-muted-foreground">More answers in our <Link to="/faq" className="text-primary hover:underline">FAQ</Link> and <Link to="/terms" className="text-primary hover:underline">Terms</Link>.</p>
         </section>
