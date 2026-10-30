@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { RoutePageHead } from "@/components/RoutePageHead";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { trackRouteClick } from "@/lib/routeTracking";
@@ -13,24 +13,22 @@ const directions = [
 ];
 
 const HarareJohannesburg = () => {
-  useEffect(() => {
-    document.title = "Send Documents Between Harare and Johannesburg | QikParcel";
-  }, []);
   return (
     <main className="min-h-screen bg-background">
+      <RoutePageHead title="Send Documents Harare to Johannesburg | QikParcel" description="Enquire about sending documents from Harare to Johannesburg or Johannesburg to Harare. Documents-only pilot; eligibility and traveller availability apply." path="/send-parcel-harare-to-johannesburg" />
       <div className="container mx-auto max-w-2xl px-4 py-20">
         <Link to="/" className="text-sm text-primary hover:underline">← Back to home</Link>
-        <h1 className="mt-6 text-4xl font-black text-foreground">Send documents between Harare and Johannesburg</h1>
+        <h1 className="mt-6 text-4xl font-black text-foreground">Send documents Harare to Johannesburg</h1>
         <p className="mt-6 text-muted-foreground">
           QikParcel connects people sending items with travellers already making the journey. Harare ↔ Johannesburg is one of our featured pilot corridors, in both directions.
         </p>
 
         <section className="mt-10">
-          <h2 className="text-xl font-bold text-foreground">Choose your direction</h2>
+          <h2 className="text-xl font-bold text-foreground">Send documents in either direction</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {directions.map((d) => (
               <div key={d.title} className="rounded-lg border border-border bg-card p-5">
-                <h3 className="font-bold text-card-foreground">{d.title}</h3>
+                <h3 className="font-bold text-card-foreground">Send documents from {d.title.replace(" → ", " to ")}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">Documents only during the pilot.</p>
                 <div className="mt-4 flex flex-col gap-2">
                   <Button asChild size="sm"><Link to="/onboarding" onClick={() => trackRouteClick(ROUTE, d.title.replace(/ /g, ""), "enquiry")}>Send an enquiry</Link></Button>
@@ -42,12 +40,12 @@ const HarareJohannesburg = () => {
         </section>
 
         <section className="mt-10">
-          <h2 className="text-xl font-bold text-foreground">What you can send during the pilot</h2>
+          <h2 className="text-xl font-bold text-foreground">Harare–Johannesburg documents-only pilot rules</h2>
           <p className="mt-3 text-muted-foreground">During the pilot, cross-border routes are limited to documents. Prohibited or dangerous items cannot be sent — see our <Link to="/prohibited-items" className="text-primary hover:underline">Prohibited Items policy</Link>. We don't give customs clearance advice.</p>
         </section>
 
         <section className="mt-10">
-          <h2 className="text-xl font-bold text-foreground">How it works</h2>
+          <h2 className="text-xl font-bold text-foreground">How to enquire about sending documents</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-muted-foreground">
             <li>Tell us what you need to send, which direction and when.</li>
             <li>Our team reviews your enquiry and checks eligibility.</li>
@@ -57,12 +55,12 @@ const HarareJohannesburg = () => {
         </section>
 
         <section className="mt-10">
-          <h2 className="text-xl font-bold text-foreground">Prices and timings</h2>
+          <h2 className="text-xl font-bold text-foreground">Harare–Johannesburg document delivery costs and times</h2>
           <p className="mt-3 text-muted-foreground">We don't publish fixed prices or delivery times yet. Ask us on WhatsApp and our team will reply with what is currently available.</p>
         </section>
 
         <section className="mt-10 rounded-lg border border-border bg-muted p-6">
-          <h2 className="text-xl font-bold text-foreground">Travel this route often?</h2>
+          <h2 className="text-xl font-bold text-foreground">Travelling between Harare and Johannesburg?</h2>
           <p className="mt-3 text-muted-foreground">If you regularly fly, take the coach or drive between Harare and Johannesburg, register your upcoming trips. We'll contact you if a suitable documents request comes up. Earnings and matches are not guaranteed.</p>
           <Button asChild className="mt-4" variant="secondary"><Link to="/onboarding" onClick={() => trackRouteClick(ROUTE, "Both", "traveller")}>Register as a traveller</Link></Button>
         </section>
