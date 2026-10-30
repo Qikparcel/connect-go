@@ -11,6 +11,7 @@ import LegalPage from "./pages/LegalPage";
 import SendToZimbabwe from "./pages/SendToZimbabwe";
 import HarareJohannesburg from "./pages/HarareJohannesburg";
 import LondonHarare from "./pages/LondonHarare";
+import HarareJohannesburgFaq from "./pages/HarareJohannesburgFaq";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/send-parcel-uk-to-zimbabwe" element={<SendToZimbabwe />} />
           <Route path="/send-parcel-harare-to-johannesburg" element={<HarareJohannesburg />} />
           <Route path="/send-parcel-london-to-harare" element={<LondonHarare />} />
+          <Route path="/harare-johannesburg-faq" element={<HarareJohannesburgFaq />} />
           <Route path="/faq" element={<LegalPage page="faq" />} />
           <Route path="/prohibited-items" element={<LegalPage page="prohibited-items" />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
