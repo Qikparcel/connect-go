@@ -15,7 +15,7 @@ const faqs: { q: string; a: string }[] = [
   { q: "Can you help with customs?", a: "We don't give customs clearance advice. Senders are legally responsible for the contents they declare." },
   { q: "Will I need to verify my identity?", a: "Identity verification may be required for certain features. Never share passport photos, passwords or card details in chat — our team will use a secure process if checks are needed." },
   { q: "Who can carry documents on this route?", a: "Travellers must be 18 or over, have valid ID and pass verification checks. They are independent individuals, not QikParcel employees. Earnings and matches are not guaranteed." },
-  { q: "How do I get help?", a: "Message us on WhatsApp. We can't promise an immediate reply or 24/7 cover, but our team will get back to you." },
+  { q: "How do I get help?", a: "Message us on WhatsApp. We can't promise an immediate reply or 24/7 cover." },
 ];
 
 const HarareJohannesburgFaq = () => {
