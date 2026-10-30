@@ -26,4 +26,4 @@
 - [x] Admin dashboard: approve/reject enquiries with audit events, searchable chat history tab, and owner-managed chatbot/enquiry traffic limits through manage-limits (saved overrides, throttle stats, service-role-only tables); 28 limit tests passed. Signed-in approve/reject, chat search, limit save and saved-ceiling enforcement verified in preview; publication pending.
 - [x] Track enquiry/WhatsApp/traveller clicks per Zimbabwe corridor page; Route interest admin tab verified signed in
 - [x] Harare–Johannesburg FAQ page linked from Zimbabwe and route pages (publish pending)
-- [ ] Zimbabwe pricing page: blocked until owner supplies approved prices (show pricing first)
+- [ ] Zimbabwe pricing page: on hold at owner's request (2026-10-30); needs approved prices before building
