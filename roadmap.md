@@ -24,3 +24,5 @@
 - [x] Publish latest changes (live verification tag and sitemap confirmed).
 - [x] Finish Google Search Console verification and submit the published site's sitemap (owner access confirmed; Google downloaded sitemap with zero errors/warnings).
 - [x] Admin dashboard: approve/reject enquiries with audit events, searchable chat history tab, and owner-managed chatbot/enquiry traffic limits through manage-limits (saved overrides, throttle stats, service-role-only tables); 28 limit tests passed. Signed-in approve/reject, chat search, limit save and saved-ceiling enforcement verified in preview; publication pending.
+- [ ] Track enquiry/WhatsApp button clicks per Zimbabwe corridor page and show per-route counts in admin
+- [ ] Harare–Johannesburg FAQ page (pilot rules, eligibility) linked from Zimbabwe corridor page
