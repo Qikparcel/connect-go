@@ -21,6 +21,7 @@ const Footer = () => {
           <Link to="/cancellation" className="hover:text-primary">Cancellation</Link>
           <Link to="/send-parcel-uk-to-zimbabwe" className="hover:text-primary">UK to Zimbabwe</Link>
           <Link to="/send-parcel-harare-to-johannesburg" className="hover:text-primary">Harare to Johannesburg</Link>
+          <Link to="/send-parcel-london-to-harare" className="hover:text-primary">London to Harare</Link>
           <Link to="/faq" className="hover:text-primary">FAQ</Link>
         </nav>
         <p className="text-xs text-muted-foreground">
