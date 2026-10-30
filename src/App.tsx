@@ -8,6 +8,7 @@ import Onboarding from "./pages/Onboarding";
 import Admin from "./pages/Admin";
 import TeamSignIn from "./pages/TeamSignIn";
 import LegalPage from "./pages/LegalPage";
+import SendToZimbabwe from "./pages/SendToZimbabwe";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/privacy" element={<LegalPage page="privacy" />} />
           <Route path="/terms" element={<LegalPage page="terms" />} />
           <Route path="/cancellation" element={<LegalPage page="cancellation" />} />
+          <Route path="/send-parcel-uk-to-zimbabwe" element={<SendToZimbabwe />} />
           <Route path="/faq" element={<LegalPage page="faq" />} />
           <Route path="/prohibited-items" element={<LegalPage page="prohibited-items" />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

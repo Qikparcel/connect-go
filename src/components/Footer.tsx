@@ -19,6 +19,7 @@ const Footer = () => {
           <Link to="/terms" className="hover:text-primary">Terms</Link>
           <Link to="/prohibited-items" className="hover:text-primary">Prohibited Items</Link>
           <Link to="/cancellation" className="hover:text-primary">Cancellation</Link>
+          <Link to="/send-parcel-uk-to-zimbabwe" className="hover:text-primary">UK to Zimbabwe</Link>
           <Link to="/faq" className="hover:text-primary">FAQ</Link>
         </nav>
         <p className="text-xs text-muted-foreground">
