@@ -10,4 +10,7 @@ describe("critical chatbot safety controls", () => {
   it("blocks card numbers from model and chat persistence", () => expect(containsSensitiveData("4111 1111 1111 1111")).toBe(true));
   it("blocks disclosed passwords", () => expect(containsSensitiveData("password: not-a-real-password")).toBe(true));
   it("does not mistake a UK contact phone for a card", () => expect(containsSensitiveData("+44 7443 191370")).toBe(false));
+  it("treats Harare to Johannesburg documents as a pilot enquiry", () => expect(screenEnquiry("Harare", "Johannesburg", "Documents").status).toBe("documents_pilot"));
+  it("treats Johannesburg to Harare documents as a pilot enquiry", () => expect(screenEnquiry("Johannesburg", "Harare", "Documents").status).toBe("documents_pilot"));
+  it("still requires review for clothing on Harare to Johannesburg", () => expect(screenEnquiry("Harare", "Johannesburg", "Clothing").status).toBe("review_required"));
 });

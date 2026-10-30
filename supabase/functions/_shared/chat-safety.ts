@@ -12,7 +12,7 @@ export function screenEnquiry(origin: string, destination: string, category: str
   const prohibited = /\b(drugs?|controlled substances?|weapons?|guns?|explosives?|flammables?|hazardous chemicals?|counterfeit|stolen|cash|precious metals?|bearer instruments?|live animals?|human remains)\b/i;
   if (prohibited.test(category)) return { status: "prohibited", bookingAllowed: false, reason: "Declared goods conflict with the Prohibited Items policy. Human review required; do not carry or book." };
   const from = country(origin), to = country(destination);
-  const corridor = from && to && from !== to && (from === "UK" || to === "UK");
+  const corridor = from && to && from !== to && (from === "UK" || to === "UK" || [from, to].sort().join("|") === "South Africa|Zimbabwe");
   if (corridor && /^documents?$/i.test(category.trim())) return { status: "documents_pilot", bookingAllowed: false, reason: "Documents-only pilot enquiry. Operations must confirm eligibility, availability and secure verification before any booking." };
   return { status: "review_required", bookingAllowed: false, reason: "Route or goods eligibility needs human review. International pilot routes are documents-only; no booking is authorised." };
 }
